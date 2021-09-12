@@ -3,11 +3,11 @@
 > 1. 联系我：如要有问题咨询，请联系我（公众号：大数据羊说，备注来自`GitHub`）
 > 2. 该仓库会持续更新 flink sql 教程福利干货，如果对您有点帮助，记得 star 持续关注 !
 
-![在这里插入图片描述](https://raw.githubusercontent.com/yangyichao-mango/yangyichao-mango.github.io/master/1631456316080.png)
+![在这里插入图片描述](https://raw.githubusercontent.com/yangyichao-mango/yangyichao-mango.github.io/master/1631459281928.png)
 
 <br>
 <p align="center">
-    <a href="#微信" style="text-decoration:none;">
+    <a href="#32公众号" style="text-decoration:none;">
         <img src="https://img.shields.io/badge/WeChat-%E5%85%AC%E4%BC%97%E5%8F%B7-green" alt="公众号" />
     </a>
     <a href="https://www.zhihu.com/people/onemango" target="_blank" style="text-decoration:none;">
@@ -29,6 +29,8 @@
 > 以下列出的是作者对原创的一些文章和一些学习资源做了一个汇总，会持续更新！如果帮到了您，请点个star支持一下，谢谢！
 
 ## 2.1.flink sql
+
+1. [公众号文章：踩坑记 | flink sql count 还有这种坑！](https://mp.weixin.qq.com/s/5XDkmuEIfHB_WsMHPeinkw)，[源码](https://github.com/yangyichao-mango/flink-study/tree/main/flink-examples-1.13/src/main/java/flink/examples/sql/_01/countdistincterror)
 
 ## 2.2.flink 实战
 
