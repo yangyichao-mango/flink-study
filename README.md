@@ -1,6 +1,6 @@
 # 1.友情提示
 
-> 1. 联系我：如要有问题咨询，请联系我（公众号：`大数据羊说`，备注来自`GitHub`）
+> 1. 联系我：如要有问题咨询，请联系我（公众号：[`大数据羊说`](#32公众号)，备注来自`GitHub`）
 > 2. 该仓库会持续更新 flink 教程福利干货，麻烦路过的各位亲给这个项目点个 `star`，太不易了，写了这么多，算是对我坚持下来的一种鼓励吧！
 
 ![在这里插入图片描述](https://raw.githubusercontent.com/yangyichao-mango/yangyichao-mango.github.io/master/1631459281928.png)
