@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package flink;
+
+option java_package = "flink.examples.sql._05.format.formats.protobuf";
+option java_outer_classname = "TestOuterClassname";
+option java_multiple_files = true;
+
+message Test {
+    string name = 1;
+    repeated string names = 2;
+
+    map<string, int32> si_map = 7;
+}

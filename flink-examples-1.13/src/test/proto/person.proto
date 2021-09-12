@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+package flink;
+
+option java_package = "flink.examples.sql._05.format.formats.protobuf";
+option java_outer_classname = "PersonOuterClassname";
+option java_multiple_files = true;
+
+message Person {
+    string name = 1;
+    repeated string names = 2;
+
+    int32 id = 3;
+    repeated int32 ids = 4;
+
+    int64 long = 5;
+    repeated int64 longs = 6;
+
+    map<string, int32> si_map = 7;
+    map<string, int64> sl_map = 8;
+    map<string, Dog> sd_map = 9;
+
+    Dog dog = 10;
+    repeated Dog dogs = 11;
+
+    enum ContactType {
+        MOBILE = 0;
+        MESSAGE = 1;
+        WECHAT = 2;
+        EMAIL = 3;
+    }
+
+    message Contact {
+        string number = 1;
+        ContactType contact_type = 2;
+    }
+
+    repeated Contact contacts = 12;
+}
+
+message Dog {
+    string name = 1;
+    int32 id = 2;
+}
