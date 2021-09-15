@@ -21,7 +21,7 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <slf4j.version>1.7.25</slf4j.version>
         <logback.version>1.2.3</logback.version>
-        <zookeeper.version>3.4.6</zookeeper.version>
+        <zookeeper.version>3.7.0</zookeeper.version>
         <curator-recipes.version>4.0.1</curator-recipes.version>
         <flink.version>1.13.1</flink.version>
         <kafka-client.version>2.1.1</kafka-client.version>
@@ -43,7 +43,7 @@
         <scala.binary.version>2.11</scala.binary.version>
         <mvel2.version>2.4.12.Final</mvel2.version>
         <curator.version>2.12.0</curator.version>
-        <kafka.version>2.1.1</kafka.version>
+        <kafka.version>2.8.0</kafka.version>
         <groovy.version>2.5.7</groovy.version>
         <gson.version>2.2.4</gson.version>
         <guava.version>30.1.1-jre</guava.version>
@@ -68,6 +68,33 @@
 
     <dependencyManagement>
         <dependencies>
+
+            <dependency>
+                <groupId>com.twitter</groupId>
+                <artifactId>chill-protobuf</artifactId>
+                <version>0.7.6</version>
+                <!-- exclusions for dependency conversion -->
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.esotericsoftware.kryo</groupId>
+                        <artifactId>kryo</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/net.mguenther.kafka/kafka-junit -->
+            <dependency>
+                <groupId>net.mguenther.kafka</groupId>
+                <artifactId>kafka-junit</artifactId>
+                <version>2.8.0</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.kafka</groupId>
+                <artifactId>kafka_2.13</artifactId>
+                <version>${kafka.version}</version>
+            </dependency>
+
 
             <!-- https://mvnrepository.com/artifact/junit/junit -->
             <dependency>
@@ -288,6 +315,12 @@
                 <version>${flink.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>org.apache.flink</groupId>
+                <artifactId>flink-statebackend-rocksdb_2.11</artifactId>
+                <version>${flink.version}</version>
+            </dependency>
+
             <!-- https://mvnrepository.com/artifact/org.apache.flink/flink-core -->
             <dependency>
                 <groupId>org.apache.flink</groupId>
@@ -339,7 +372,7 @@
             <dependency>
                 <groupId>org.apache.kafka</groupId>
                 <artifactId>kafka-clients</artifactId>
-                <version>${kafka-client.version}</version>
+                <version>${kafka.version}</version>
             </dependency>
 
             <dependency>
@@ -512,12 +545,6 @@
                 <groupId>org.apache.curator</groupId>
                 <artifactId>curator-recipes</artifactId>
                 <version>${curator.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.kafka</groupId>
-                <artifactId>kafka-clients</artifactId>
-                <version>${kafka.version}</version>
             </dependency>
 
             <dependency>
@@ -794,6 +821,9 @@
                     <configuration>
                         <protoSourceRoot>
                             src/test/proto
+                        </protoSourceRoot>
+                        <protoSourceRoot>
+                            src/main/proto
                         </protoSourceRoot>
                         <protocArtifact>
                             com.google.protobuf:protoc:3.1.0:exe:${os.detected.classifier}

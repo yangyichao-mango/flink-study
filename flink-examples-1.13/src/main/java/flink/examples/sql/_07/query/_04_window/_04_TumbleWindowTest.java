@@ -47,7 +47,7 @@ public class _04_TumbleWindowTest {
                 + "    WATERMARK FOR row_time AS row_time - INTERVAL '5' SECOND\n"
                 + ") WITH (\n"
                 + "  'connector' = 'datagen',\n"
-                + "  'rows-per-second' = '10',\n"
+                + "  'rows-per-second' = '10000',\n"
                 + "  'fields.dim.length' = '1',\n"
                 + "  'fields.user_id.min' = '1',\n"
                 + "  'fields.user_id.max' = '100000',\n"
@@ -87,7 +87,7 @@ public class _04_TumbleWindowTest {
                 + "\t FROM TABLE(TUMBLE(\n"
                 + "\t \t\t\tTABLE source_table\n"
                 + "\t \t\t\t, DESCRIPTOR(row_time)\n"
-                + "\t \t\t\t, INTERVAL '10' SECOND))\n"
+                + "\t \t\t\t, INTERVAL '60' SECOND))\n"
                 + "\t GROUP BY window_start, \n"
                 + "\t  \t\t  window_end,\n"
                 + "\t\t\t  dim,\n"
@@ -101,6 +101,16 @@ public class _04_TumbleWindowTest {
         tEnv.executeSql(sourceSql);
         tEnv.executeSql(sinkSql);
         tEnv.executeSql(selectWhereSql);
+
+        /**
+         * 两阶段聚合
+         * 本地 agg：{@link org.apache.flink.table.runtime.operators.aggregate.window.LocalSlicingWindowAggOperator}
+         *                   -> {@link org.apache.flink.table.runtime.operators.aggregate.window.combines.LocalAggCombiner}
+         *
+         * key agg；{@link org.apache.flink.table.runtime.operators.window.slicing.SlicingWindowOperator}
+         *    -> {@link org.apache.flink.table.runtime.operators.aggregate.window.processors.SliceUnsharedWindowAggProcessor}
+         *                   -> {@link org.apache.flink.table.runtime.operators.aggregate.window.combines.GlobalAggCombiner}
+         */
     }
 
 }
