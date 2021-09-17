@@ -1,4 +1,4 @@
-package flink.examples.sql._07.query._06_joins._06_InnerJoinsTest;
+package flink.examples.sql._07.query._06_joins._06_IntervalJoinsTest;
 
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
@@ -40,14 +40,16 @@ public class _06_InnerJoinsTest {
 
         StreamTableEnvironment tEnv = StreamTableEnvironment.create(env, settings);
 
-        tEnv.getConfig().getConfiguration().setString("pipeline.name", "1.13.1 Inner Join 案例");
+        tEnv.getConfig().getConfiguration().setString("pipeline.name", "1.13.1 Interval Join 案例");
 
         tEnv.getConfig().getConfiguration().setString("state.backend", "rocksdb");
 
 
         String sql = "CREATE TABLE source_table (\n"
                 + "    user_id BIGINT,\n"
-                + "    name STRING\n"
+                + "    name STRING,\n"
+                + "    row_time AS cast(CURRENT_TIMESTAMP as timestamp(3)),\n"
+                + "    WATERMARK FOR row_time AS row_time - INTERVAL '5' SECOND\n"
                 + ") WITH (\n"
                 + "  'connector' = 'datagen',\n"
                 + "  'rows-per-second' = '10',\n"
@@ -58,7 +60,9 @@ public class _06_InnerJoinsTest {
                 + "\n"
                 + "CREATE TABLE dim_table (\n"
                 + "  user_id BIGINT,\n"
-                + "  platform     STRING\n"
+                + "  platform STRING,\n"
+                + "  row_time AS cast(CURRENT_TIMESTAMP as timestamp(3)),\n"
+                + "  WATERMARK FOR row_time AS row_time - INTERVAL '5' SECOND\n"
                 + ")\n"
                 + "WITH (\n"
                 + "  'connector' = 'datagen',\n"
@@ -71,21 +75,23 @@ public class _06_InnerJoinsTest {
                 + "CREATE TABLE sink_table (\n"
                 + "    user_id BIGINT,\n"
                 + "    name STRING,\n"
-                + "  platform     STRING\n"
+                + "    platform STRING\n"
                 + ") WITH (\n"
                 + "  'connector' = 'print'\n"
                 + ");\n"
                 + "\n"
                 + "INSERT INTO sink_table\n"
                 + "SELECT\n"
-                + "    source_table.user_id as user_id,\n"
-                + "    source_table.name as name,\n"
-                + "    dim_table.platform as platform\n"
-                + "FROM source_table\n"
-                + "INNER JOIN dim_table ON source_table.user_id = dim_table.user_id;";
+                + "    s.user_id as user_id,\n"
+                + "    s.name as name,\n"
+                + "    d.platform as platform\n"
+                + "FROM source_table s, dim_table as d\n"
+                + "WHERE s.user_id = d.user_id\n"
+                + "AND s.row_time BETWEEN d.row_time - INTERVAL '4' HOUR AND d.row_time;";
 
         /**
-         * join 算子：{@link org.apache.flink.table.runtime.operators.join.stream.StreamingJoinOperator}
+         * join 算子：{@link org.apache.flink.table.runtime.operators.join.KeyedCoProcessOperatorWithWatermarkDelay}
+         *                 -> {@link org.apache.flink.table.runtime.operators.join.interval.RowTimeIntervalJoin}
           */
 
         Arrays.stream(sql.split(";"))

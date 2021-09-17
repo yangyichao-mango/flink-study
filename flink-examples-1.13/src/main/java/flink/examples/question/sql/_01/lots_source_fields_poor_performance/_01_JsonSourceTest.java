@@ -4,13 +4,20 @@ import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.flink.api.common.restartstrategy.RestartStrategies;
+import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.environment.CheckpointConfig;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.functions.source.RichSourceFunction;
 import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
+import org.apache.flink.table.data.RowData;
+
+import com.google.common.collect.ImmutableMap;
+
+import flink.examples.JacksonUtils;
 
 
 public class _01_JsonSourceTest {
@@ -50,10 +57,9 @@ public class _01_JsonSourceTest {
                 + "    name STRING,\n"
                 + "    server_timestamp BIGINT\n"
                 + ") WITH (\n"
-                + "  'connector' = 'socket',\n"
-                + "  'format' = 'json',\n"
-                + "  'hostname' = 'localhost',\n"
-                + "  'port' = '9999'\n"
+                + "  'connector' = 'user_defined',\n"
+                + "  'class.name' = 'flink.examples.question.sql._01.lots_source_fields_poor_performance._01_JsonSourceTest$UserDefineSource1',\n"
+                + "  'format' = 'json'\n"
                 + ");\n"
                 + "\n"
                 + "CREATE TABLE sink_table (\n"
@@ -133,6 +139,35 @@ public class _01_JsonSourceTest {
 
         Arrays.stream(originalSql.split(";"))
                 .forEach(tEnv::executeSql);
+    }
+
+    public static class UserDefineSource1 extends RichSourceFunction<RowData> {
+
+        private DeserializationSchema<RowData> dser;
+
+        private volatile boolean isCancel;
+
+        public UserDefineSource1(DeserializationSchema<RowData> dser) {
+            this.dser = dser;
+        }
+
+        @Override
+        public void run(SourceContext<RowData> ctx) throws Exception {
+            while (!this.isCancel) {
+                ctx.collect(this.dser.deserialize(
+                        JacksonUtils.bean2Json(ImmutableMap.of("user_id", 1111L
+                                , "name", "antigeneral"
+                                , "server_timestamp", System.currentTimeMillis())
+                        ).getBytes()
+                ));
+                Thread.sleep(1000);
+            }
+        }
+
+        @Override
+        public void cancel() {
+            this.isCancel = true;
+        }
     }
 
 }

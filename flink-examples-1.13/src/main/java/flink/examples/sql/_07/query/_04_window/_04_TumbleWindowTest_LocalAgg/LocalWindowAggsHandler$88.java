@@ -1,7 +1,7 @@
 package flink.examples.sql._07.query._04_window._04_TumbleWindowTest_LocalAgg;
 
 
-public final class _04_TumbleWindowTest_LocalWindowAggsHandler$88
+public final class LocalWindowAggsHandler$88
         implements org.apache.flink.table.runtime.generated.NamespaceAggsHandleFunction<Long> {
 
     private transient org.apache.flink.table.runtime.operators.window.slicing.SliceAssigners.TumblingSliceAssigner
@@ -27,7 +27,7 @@ public final class _04_TumbleWindowTest_LocalWindowAggsHandler$88
 
     private Long namespace;
 
-    public _04_TumbleWindowTest_LocalWindowAggsHandler$88(Object[] references) throws Exception {
+    public LocalWindowAggsHandler$88(Object[] references) throws Exception {
         sliceAssigner$21 =
                 (((org.apache.flink.table.runtime.operators.window.slicing.SliceAssigners.TumblingSliceAssigner) references[0]));
         converter$78 = (((org.apache.flink.table.data.conversion.RawObjectConverter) references[1]));

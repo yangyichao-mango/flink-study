@@ -1,7 +1,7 @@
 package flink.examples.sql._07.query._04_window._04_TumbleWindowTest_GlobalAgg;
 
 
-public final class _04_TumbleWindowTest_GlobalWindowAggsHandler$232
+public final class GlobalWindowAggsHandler$232
         implements org.apache.flink.table.runtime.generated.NamespaceAggsHandleFunction<Long> {
 
     private transient org.apache.flink.table.runtime.operators.window.slicing.SliceAssigners.SlicedUnsharedSliceAssigner
@@ -31,7 +31,7 @@ public final class _04_TumbleWindowTest_GlobalWindowAggsHandler$232
 
     private Long namespace;
 
-    public _04_TumbleWindowTest_GlobalWindowAggsHandler$232(Object[] references) throws Exception {
+    public GlobalWindowAggsHandler$232(Object[] references) throws Exception {
         sliceAssigner$163 =
                 (((org.apache.flink.table.runtime.operators.window.slicing.SliceAssigners.SlicedUnsharedSliceAssigner) references[0]));
         externalSerializer$164 = (((org.apache.flink.table.runtime.typeutils.ExternalSerializer) references[1]));

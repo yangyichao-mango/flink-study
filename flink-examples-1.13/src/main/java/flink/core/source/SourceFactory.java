@@ -3,6 +3,7 @@ package flink.core.source;
 import java.io.IOException;
 
 import org.apache.flink.api.common.serialization.DeserializationSchema;
+import org.apache.flink.api.common.serialization.SerializationSchema;
 
 import com.google.protobuf.GeneratedMessageV3;
 
@@ -11,8 +12,13 @@ import lombok.SneakyThrows;
 
 public class SourceFactory {
 
-    public static <Message extends GeneratedMessageV3> DeserializationSchema<Message> getProtobufSer(Class<Message> clazz) {
-        return null;
+    public static <Message extends GeneratedMessageV3> SerializationSchema<Message> getProtobufSer(Class<Message> clazz) {
+        return new SerializationSchema<Message>() {
+            @Override
+            public byte[] serialize(Message element) {
+                return element.toByteArray();
+            }
+        };
     }
 
     @SneakyThrows
@@ -23,7 +29,7 @@ public class SourceFactory {
 
         String className = clazz.getSimpleName() + "_DeserializationSchema";
 
-        Class<DeserializationSchema> deClass = JaninoUtils.genClass(className, code);
+        Class<DeserializationSchema> deClass = JaninoUtils.genClass(className, code, DeserializationSchema.class);
 
         return deClass.newInstance();
     }

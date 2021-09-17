@@ -86,10 +86,16 @@
     <dependencies>
 
         <!-- https://mvnrepository.com/artifact/net.mguenther.kafka/kafka-junit -->
-        <dependency>
-            <groupId>net.mguenther.kafka</groupId>
-            <artifactId>kafka-junit</artifactId>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>net.mguenther.kafka</groupId>-->
+<!--            <artifactId>kafka-junit</artifactId>-->
+<!--        </dependency>-->
+
+        <!-- https://mvnrepository.com/artifact/org.scala-lang/scala-library -->
+<!--        <dependency>-->
+<!--            <groupId>org.scala-lang</groupId>-->
+<!--            <artifactId>scala-library</artifactId>-->
+<!--        </dependency>-->
 
         <dependency>
             <groupId>com.twitter</groupId>
@@ -103,10 +109,10 @@
             </exclusions>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.kafka</groupId>
-            <artifactId>kafka_2.13</artifactId>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.apache.kafka</groupId>-->
+<!--            <artifactId>kafka_2.13</artifactId>-->
+<!--        </dependency>-->
 
 
         <dependency>
