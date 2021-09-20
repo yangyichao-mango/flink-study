@@ -43,6 +43,7 @@
 8. [公众号文章：flink sql 知其所以然（六）| flink sql 约会 calcite（看这篇就够了）](https://mp.weixin.qq.com/s/SxRKp368mYSKVmuduPoXFg)，[源码](https://github.com/yangyichao-mango/flink-study/tree/main/flink-examples-1.13/src/main/java/flink/examples/sql/_06/calcite)
 9. [公众号文章：flink sql 知其所以然（七）：不会连最适合 flink sql 的 ETL 和 group agg 场景都没见过吧？](https://github.com/yangyichao-mango/flink-study/tree/main/flink-examples-1.13/src/main/java/flink/examples/sql/_07/query)
 10. [公众号文章：flink sql 知其所以然（八）：flink sql tumble window 的奇妙解析之路](https://mp.weixin.qq.com/s/IRmt8dWmxAmbBh696akHdw)，[源码](https://github.com/yangyichao-mango/flink-study/tree/main/flink-examples-1.13/src/main/java/flink/examples/sql/_07/query/_04_window)
+11. [公众号文章：flink sql 知其所以然（九）：window tvf tumble window 的奇思妙解](https://mp.weixin.qq.com/s/QVuu5_N4lHo5gXlt1tdncw)，[源码](https://github.com/yangyichao-mango/flink-study/tree/main/flink-examples-1.13/src/main/java/flink/examples/sql/_07/query/_04_window_agg/_01_tumble_window)
 
 ## 2.2.flink 实战
 
