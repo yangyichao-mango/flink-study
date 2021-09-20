@@ -1,4 +1,4 @@
-package flink.examples.sql._03.source_sink;
+package flink.examples.sql._07.query._06_joins._03_interval_joins;
 
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
@@ -12,9 +12,11 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 
-public class UserDefinedSourceTest {
+
+public class IntervalJoins_ProcesingTime_Test {
 
     public static void main(String[] args) throws Exception {
+
         StreamExecutionEnvironment env =
                 StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(new Configuration());
 
@@ -38,31 +40,58 @@ public class UserDefinedSourceTest {
 
         StreamTableEnvironment tEnv = StreamTableEnvironment.create(env, settings);
 
-        tEnv.getConfig().getConfiguration().setString("pipeline.name", "1.13.2 用户自定义 SOURCE 案例");
+        tEnv.getConfig().getConfiguration().setString("pipeline.name", "1.13.2 Interval Join 处理时间案例");
 
         tEnv.getConfig().getConfiguration().setString("state.backend", "rocksdb");
 
 
         String sql = "CREATE TABLE source_table (\n"
                 + "    user_id BIGINT,\n"
-                + "    name STRING\n"
+                + "    name STRING,\n"
+                + "    proctime AS PROCTIME()\n"
                 + ") WITH (\n"
-                + "  'connector' = 'user_defined',\n"
-                + "  'format' = 'json',\n"
-                + "  'class.name' = 'flink.examples.sql._03.source_sink.table.user_defined.UserDefinedSource'\n"
+                + "  'connector' = 'datagen',\n"
+                + "  'rows-per-second' = '10',\n"
+                + "  'fields.name.length' = '1',\n"
+                + "  'fields.user_id.min' = '1',\n"
+                + "  'fields.user_id.max' = '100000'\n"
+                + ");\n"
+                + "\n"
+                + "CREATE TABLE dim_table (\n"
+                + "  user_id BIGINT,\n"
+                + "  platform STRING,\n"
+                + "  proctime AS PROCTIME()\n"
+                + ")\n"
+                + "WITH (\n"
+                + "  'connector' = 'datagen',\n"
+                + "  'rows-per-second' = '10',\n"
+                + "  'fields.platform.length' = '1',\n"
+                + "  'fields.user_id.min' = '1',\n"
+                + "  'fields.user_id.max' = '100000'\n"
                 + ");\n"
                 + "\n"
                 + "CREATE TABLE sink_table (\n"
                 + "    user_id BIGINT,\n"
-                + "    name STRING\n"
+                + "    name STRING,\n"
+                + "    platform STRING\n"
                 + ") WITH (\n"
                 + "  'connector' = 'print'\n"
                 + ");\n"
                 + "\n"
                 + "INSERT INTO sink_table\n"
                 + "SELECT\n"
-                + "    *\n"
-                + "FROM source_table;";
+                + "    s.user_id as user_id,\n"
+                + "    s.name as name,\n"
+                + "    d.platform as platform\n"
+                + "FROM source_table s, dim_table as d\n"
+                + "WHERE s.user_id = d.user_id\n"
+                + "AND s.proctime BETWEEN d.proctime - INTERVAL '4' HOUR AND d.proctime;";
+
+        /**
+         * join 算子：{@link org.apache.flink.table.runtime.operators.join.KeyedCoProcessOperatorWithWatermarkDelay}
+         *                 -> {@link org.apache.flink.table.runtime.operators.join.interval.RowTimeIntervalJoin}
+         *                       -> {@link org.apache.flink.table.runtime.operators.join.interval.IntervalJoinFunction}
+          */
 
         Arrays.stream(sql.split(";"))
                 .forEach(tEnv::executeSql);

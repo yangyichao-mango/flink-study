@@ -1,6 +1,5 @@
-package flink.examples.sql._03.source_sink;
+package flink.examples.sql._07.query._03_group_agg._05_rollup;
 
-import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.flink.api.common.restartstrategy.RestartStrategies;
@@ -12,9 +11,11 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 
-public class UserDefinedSourceTest {
+
+public class RollUpGroupAggTest2 {
 
     public static void main(String[] args) throws Exception {
+
         StreamExecutionEnvironment env =
                 StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(new Configuration());
 
@@ -23,7 +24,7 @@ public class UserDefinedSourceTest {
         env.setRestartStrategy(RestartStrategies.failureRateRestart(6, org.apache.flink.api.common.time.Time
                 .of(10L, TimeUnit.MINUTES), org.apache.flink.api.common.time.Time.of(5L, TimeUnit.SECONDS)));
         env.getConfig().setGlobalJobParameters(parameterTool);
-        env.setParallelism(10);
+        env.setParallelism(1);
 
         // ck 设置
         env.getCheckpointConfig().setFailOnCheckpointingErrors(false);
@@ -38,34 +39,28 @@ public class UserDefinedSourceTest {
 
         StreamTableEnvironment tEnv = StreamTableEnvironment.create(env, settings);
 
-        tEnv.getConfig().getConfiguration().setString("pipeline.name", "1.13.2 用户自定义 SOURCE 案例");
-
-        tEnv.getConfig().getConfiguration().setString("state.backend", "rocksdb");
-
-
-        String sql = "CREATE TABLE source_table (\n"
-                + "    user_id BIGINT,\n"
-                + "    name STRING\n"
-                + ") WITH (\n"
-                + "  'connector' = 'user_defined',\n"
-                + "  'format' = 'json',\n"
-                + "  'class.name' = 'flink.examples.sql._03.source_sink.table.user_defined.UserDefinedSource'\n"
-                + ");\n"
-                + "\n"
-                + "CREATE TABLE sink_table (\n"
-                + "    user_id BIGINT,\n"
-                + "    name STRING\n"
+        String sinkSql = "CREATE TABLE sink_table (\n"
+                + "    supplier_id STRING,\n"
+                + "    product_id STRING,\n"
+                + "    total BIGINT\n"
                 + ") WITH (\n"
                 + "  'connector' = 'print'\n"
-                + ");\n"
-                + "\n"
-                + "INSERT INTO sink_table\n"
-                + "SELECT\n"
-                + "    *\n"
-                + "FROM source_table;";
+                + ")";
 
-        Arrays.stream(sql.split(";"))
-                .forEach(tEnv::executeSql);
+        String selectWhereSql = "insert into sink_table\n"
+                + "SELECT supplier_id, product_id, COUNT(*) as total\n"
+                + "FROM (VALUES\n"
+                + "    ('supplier1', 'product1', 4),\n"
+                + "    ('supplier1', 'product2', 3),\n"
+                + "    ('supplier2', 'product3', 3),\n"
+                + "    ('supplier2', 'product4', 4))\n"
+                + "AS Products(supplier_id, product_id, rating)\n"
+                + "GROUP BY ROLLUP (supplier_id, product_id)";
+
+        tEnv.getConfig().getConfiguration().setString("pipeline.name", "ROLLUP 案例");
+
+        tEnv.executeSql(sinkSql);
+        tEnv.executeSql(selectWhereSql);
     }
 
 }

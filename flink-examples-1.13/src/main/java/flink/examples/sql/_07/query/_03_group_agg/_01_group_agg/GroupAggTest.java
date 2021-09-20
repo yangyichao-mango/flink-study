@@ -1,6 +1,5 @@
-package flink.examples.sql._03.source_sink;
+package flink.examples.sql._07.query._03_group_agg._01_group_agg;
 
-import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.flink.api.common.restartstrategy.RestartStrategies;
@@ -12,9 +11,11 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 
-public class UserDefinedSourceTest {
+
+public class GroupAggTest {
 
     public static void main(String[] args) throws Exception {
+
         StreamExecutionEnvironment env =
                 StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(new Configuration());
 
@@ -23,7 +24,7 @@ public class UserDefinedSourceTest {
         env.setRestartStrategy(RestartStrategies.failureRateRestart(6, org.apache.flink.api.common.time.Time
                 .of(10L, TimeUnit.MINUTES), org.apache.flink.api.common.time.Time.of(5L, TimeUnit.SECONDS)));
         env.getConfig().setGlobalJobParameters(parameterTool);
-        env.setParallelism(10);
+        env.setParallelism(1);
 
         // ck 设置
         env.getCheckpointConfig().setFailOnCheckpointingErrors(false);
@@ -38,34 +39,43 @@ public class UserDefinedSourceTest {
 
         StreamTableEnvironment tEnv = StreamTableEnvironment.create(env, settings);
 
-        tEnv.getConfig().getConfiguration().setString("pipeline.name", "1.13.2 用户自定义 SOURCE 案例");
-
-        tEnv.getConfig().getConfiguration().setString("state.backend", "rocksdb");
-
-
-        String sql = "CREATE TABLE source_table (\n"
-                + "    user_id BIGINT,\n"
-                + "    name STRING\n"
+        String sourceSql = "CREATE TABLE source_table (\n"
+                + "    order_id STRING,\n"
+                + "    price BIGINT\n"
                 + ") WITH (\n"
-                + "  'connector' = 'user_defined',\n"
-                + "  'format' = 'json',\n"
-                + "  'class.name' = 'flink.examples.sql._03.source_sink.table.user_defined.UserDefinedSource'\n"
-                + ");\n"
-                + "\n"
-                + "CREATE TABLE sink_table (\n"
-                + "    user_id BIGINT,\n"
-                + "    name STRING\n"
+                + "  'connector' = 'datagen',\n"
+                + "  'rows-per-second' = '10',\n"
+                + "  'fields.order_id.length' = '1',\n"
+                + "  'fields.price.min' = '1',\n"
+                + "  'fields.price.max' = '1000000'\n"
+                + ")";
+
+        String sinkSql = "CREATE TABLE sink_table (\n"
+                + "    order_id STRING,\n"
+                + "    count_result BIGINT,\n"
+                + "    sum_result BIGINT,\n"
+                + "    avg_result DOUBLE,\n"
+                + "    min_result BIGINT,\n"
+                + "    max_result BIGINT\n"
                 + ") WITH (\n"
                 + "  'connector' = 'print'\n"
-                + ");\n"
-                + "\n"
-                + "INSERT INTO sink_table\n"
-                + "SELECT\n"
-                + "    *\n"
-                + "FROM source_table;";
+                + ")";
 
-        Arrays.stream(sql.split(";"))
-                .forEach(tEnv::executeSql);
+        String selectWhereSql = "insert into sink_table\n"
+                + "select order_id,\n"
+                + "       count(*) as count_result,\n"
+                + "       sum(price) as sum_result,\n"
+                + "       avg(price) as avg_result,\n"
+                + "       min(price) as min_result,\n"
+                + "       max(price) as max_result\n"
+                + "from source_table\n"
+                + "group by order_id";
+
+        tEnv.getConfig().getConfiguration().setString("pipeline.name", "GROUP AGG 案例");
+
+        tEnv.executeSql(sourceSql);
+        tEnv.executeSql(sinkSql);
+        tEnv.executeSql(selectWhereSql);
     }
 
 }

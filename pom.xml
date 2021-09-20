@@ -11,6 +11,7 @@
         <module>flink-examples-1.8</module>
         <module>flink-examples-1.12</module>
         <module>flink-examples-1.13</module>
+        <module>flink-examples-1.10</module>
     </modules>
 
     <packaging>pom</packaging>
@@ -23,7 +24,7 @@
         <logback.version>1.2.3</logback.version>
         <zookeeper.version>3.7.0</zookeeper.version>
         <curator-recipes.version>4.0.1</curator-recipes.version>
-        <flink.version>1.13.1</flink.version>
+        <flink.version>1.13.2</flink.version>
         <kafka-client.version>2.1.1</kafka-client.version>
         <lombok.version>1.18.6</lombok.version>
         <common-lang3.version>3.6</common-lang3.version>
@@ -37,8 +38,6 @@
         <elastic-job.version>2.1.5</elastic-job.version>
         <curator.version>2.10.0</curator.version>
         <spring-boot.version>2.2.0.RELEASE</spring-boot.version>
-
-        <flink.version>1.13.1</flink.version>
         <lombok.version>1.18.20</lombok.version>
         <scala.binary.version>2.11</scala.binary.version>
         <mvel2.version>2.4.12.Final</mvel2.version>
@@ -64,10 +63,23 @@
         <jedis.version>3.6.3</jedis.version>
         <javacc.version>7.0.10</javacc.version>
         <junit.version>4.13.2</junit.version>
+        <hive.version>3.1.2</hive.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
+
+            <dependency>
+                <groupId>org.apache.flink</groupId>
+                <artifactId>flink-connector-hive_2.11</artifactId>
+                <version>${flink.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.hive</groupId>
+                <artifactId>hive-exec</artifactId>
+                <version>${hive.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>com.twitter</groupId>
@@ -496,6 +508,9 @@
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>${guava.version}</version>
+                <exclusions>
+
+                </exclusions>
             </dependency>
 
             <dependency>
@@ -759,6 +774,20 @@
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
                 <version>${jackson.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>${jackson.version}</version>
+
+            </dependency>
+
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-annotations</artifactId>
+                <version>${jackson.version}</version>
+
             </dependency>
 
             <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.module/jackson-module-kotlin -->

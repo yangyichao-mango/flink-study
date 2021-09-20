@@ -1,4 +1,4 @@
-package flink.examples.sql._03.source_sink;
+package flink.examples.sql._07.query._06_joins._01_regular_joins._01_inner_join;
 
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
@@ -12,9 +12,11 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 
-public class UserDefinedSourceTest {
+
+public class _06_InnerJoinsTest {
 
     public static void main(String[] args) throws Exception {
+
         StreamExecutionEnvironment env =
                 StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(new Configuration());
 
@@ -38,7 +40,7 @@ public class UserDefinedSourceTest {
 
         StreamTableEnvironment tEnv = StreamTableEnvironment.create(env, settings);
 
-        tEnv.getConfig().getConfiguration().setString("pipeline.name", "1.13.2 用户自定义 SOURCE 案例");
+        tEnv.getConfig().getConfiguration().setString("pipeline.name", "1.13.2 Inner Join 案例");
 
         tEnv.getConfig().getConfiguration().setString("state.backend", "rocksdb");
 
@@ -47,22 +49,44 @@ public class UserDefinedSourceTest {
                 + "    user_id BIGINT,\n"
                 + "    name STRING\n"
                 + ") WITH (\n"
-                + "  'connector' = 'user_defined',\n"
-                + "  'format' = 'json',\n"
-                + "  'class.name' = 'flink.examples.sql._03.source_sink.table.user_defined.UserDefinedSource'\n"
+                + "  'connector' = 'datagen',\n"
+                + "  'rows-per-second' = '10',\n"
+                + "  'fields.name.length' = '1',\n"
+                + "  'fields.user_id.min' = '1',\n"
+                + "  'fields.user_id.max' = '100000'\n"
+                + ");\n"
+                + "\n"
+                + "CREATE TABLE dim_table (\n"
+                + "  user_id BIGINT,\n"
+                + "  platform     STRING\n"
+                + ")\n"
+                + "WITH (\n"
+                + "  'connector' = 'datagen',\n"
+                + "  'rows-per-second' = '10',\n"
+                + "  'fields.platform.length' = '1',\n"
+                + "  'fields.user_id.min' = '1',\n"
+                + "  'fields.user_id.max' = '100000'\n"
                 + ");\n"
                 + "\n"
                 + "CREATE TABLE sink_table (\n"
                 + "    user_id BIGINT,\n"
-                + "    name STRING\n"
+                + "    name STRING,\n"
+                + "  platform     STRING\n"
                 + ") WITH (\n"
                 + "  'connector' = 'print'\n"
                 + ");\n"
                 + "\n"
                 + "INSERT INTO sink_table\n"
                 + "SELECT\n"
-                + "    *\n"
-                + "FROM source_table;";
+                + "    source_table.user_id as user_id,\n"
+                + "    source_table.name as name,\n"
+                + "    dim_table.platform as platform\n"
+                + "FROM source_table\n"
+                + "INNER JOIN dim_table ON source_table.user_id = dim_table.user_id;";
+
+        /**
+         * join 算子：{@link org.apache.flink.table.runtime.operators.join.stream.StreamingJoinOperator}
+          */
 
         Arrays.stream(sql.split(";"))
                 .forEach(tEnv::executeSql);

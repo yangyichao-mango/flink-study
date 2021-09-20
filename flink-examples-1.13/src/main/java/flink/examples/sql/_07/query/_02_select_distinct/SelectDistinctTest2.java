@@ -1,6 +1,5 @@
-package flink.examples.sql._03.source_sink;
+package flink.examples.sql._07.query._02_select_distinct;
 
-import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.flink.api.common.restartstrategy.RestartStrategies;
@@ -12,9 +11,12 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 
-public class UserDefinedSourceTest {
+
+public class SelectDistinctTest2 {
+
 
     public static void main(String[] args) throws Exception {
+
         StreamExecutionEnvironment env =
                 StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(new Configuration());
 
@@ -23,7 +25,7 @@ public class UserDefinedSourceTest {
         env.setRestartStrategy(RestartStrategies.failureRateRestart(6, org.apache.flink.api.common.time.Time
                 .of(10L, TimeUnit.MINUTES), org.apache.flink.api.common.time.Time.of(5L, TimeUnit.SECONDS)));
         env.getConfig().setGlobalJobParameters(parameterTool);
-        env.setParallelism(10);
+        env.setParallelism(1);
 
         // ck 设置
         env.getCheckpointConfig().setFailOnCheckpointingErrors(false);
@@ -38,34 +40,29 @@ public class UserDefinedSourceTest {
 
         StreamTableEnvironment tEnv = StreamTableEnvironment.create(env, settings);
 
-        tEnv.getConfig().getConfiguration().setString("pipeline.name", "1.13.2 用户自定义 SOURCE 案例");
-
-        tEnv.getConfig().getConfiguration().setString("state.backend", "rocksdb");
-
-
-        String sql = "CREATE TABLE source_table (\n"
-                + "    user_id BIGINT,\n"
-                + "    name STRING\n"
+        String sourceSql = "CREATE TABLE source_table (\n"
+                + "    string_field STRING\n"
                 + ") WITH (\n"
-                + "  'connector' = 'user_defined',\n"
-                + "  'format' = 'json',\n"
-                + "  'class.name' = 'flink.examples.sql._03.source_sink.table.user_defined.UserDefinedSource'\n"
-                + ");\n"
-                + "\n"
-                + "CREATE TABLE sink_table (\n"
-                + "    user_id BIGINT,\n"
-                + "    name STRING\n"
+                + "  'connector' = 'datagen',\n"
+                + "  'rows-per-second' = '10',\n"
+                + "  'fields.string_field.length' = '1'\n"
+                + ")";
+
+        String sinkSql = "CREATE TABLE sink_table (\n"
+                + "    string_field STRING\n"
                 + ") WITH (\n"
                 + "  'connector' = 'print'\n"
-                + ");\n"
-                + "\n"
-                + "INSERT INTO sink_table\n"
-                + "SELECT\n"
-                + "    *\n"
-                + "FROM source_table;";
+                + ")";
 
-        Arrays.stream(sql.split(";"))
-                .forEach(tEnv::executeSql);
+        String selectWhereSql = "insert into sink_table\n"
+                + "select distinct string_field\n"
+                + "from source_table";
+
+        tEnv.getConfig().getConfiguration().setString("pipeline.name", "SELECT DISTINCT 案例");
+
+        tEnv.executeSql(sourceSql);
+        tEnv.executeSql(sinkSql);
+        tEnv.executeSql(selectWhereSql);
     }
 
 }

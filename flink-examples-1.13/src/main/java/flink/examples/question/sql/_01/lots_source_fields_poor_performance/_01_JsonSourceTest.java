@@ -47,7 +47,7 @@ public class _01_JsonSourceTest {
 
         StreamTableEnvironment tEnv = StreamTableEnvironment.create(env, settings);
 
-        tEnv.getConfig().getConfiguration().setString("pipeline.name", "1.13.1 TUMBLE WINDOW 案例");
+        tEnv.getConfig().getConfiguration().setString("pipeline.name", "1.13.2 TUMBLE WINDOW 案例");
 
         tEnv.getConfig().getConfiguration().setString("state.backend", "rocksdb");
 
