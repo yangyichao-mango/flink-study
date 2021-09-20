@@ -96,7 +96,7 @@ public class TumbleWindowTest {
                 + "group by dim,\n"
                 + "\t\t window_start";
 
-        tEnv.getConfig().getConfiguration().setString("pipeline.name", "1.13.2 TUMBLE WINDOW 案例");
+        tEnv.getConfig().getConfiguration().setString("pipeline.name", "1.13.2 WINDOW TVF TUMBLE WINDOW 案例");
 
         tEnv.executeSql(sourceSql);
         tEnv.executeSql(sinkSql);
