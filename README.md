@@ -49,6 +49,8 @@
 
 1. [公众号文章：揭秘字节跳动埋点数据实时动态处理引擎（附源码）](https://mp.weixin.qq.com/s/PoK0XOA9OHIDJezb1fLOMw)，[源码](https://github.com/yangyichao-mango/flink-study/tree/main/flink-examples-1.13/src/main/java/flink/examples/datastream/_01/bytedance/split)
 2. [公众号文章：踩坑记| flink state 序列化 java enum 竟然岔劈了](https://mp.weixin.qq.com/s/YElwTL-wzo2UVVIsIH_9YA)，[源码](https://github.com/yangyichao-mango/flink-study/tree/main/flink-examples-1.13/src/main/java/flink/examples/datastream/_03/enums_state)
+3. [公众号文章：flink idea 本地调试状态恢复](https://mp.weixin.qq.com/s/rLeKY_49q8rR9C_RmlTmhg)，[源码](https://github.com/yangyichao-mango/flink-study/blob/main/flink-examples-1.13/src/main/java/flink/examples/runtime/_04/statebackend/CancelAndRestoreWithCheckpointTest.java)
+
 
 # 3.联系我
 
