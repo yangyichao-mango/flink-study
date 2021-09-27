@@ -1,4 +1,4 @@
-package flink.examples.runtime.future;
+package flink.examples.runtime._01.future;
 
 import java.util.concurrent.CompletableFuture;
 

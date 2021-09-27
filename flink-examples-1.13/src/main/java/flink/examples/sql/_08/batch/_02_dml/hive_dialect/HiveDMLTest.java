@@ -1,4 +1,4 @@
-package flink.examples.sql._08.batch._02_dml;
+package flink.examples.sql._08.batch._02_dml.hive_dialect;
 
 import java.util.concurrent.TimeUnit;
 
@@ -9,10 +9,8 @@ import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.environment.CheckpointConfig;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.EnvironmentSettings;
-import org.apache.flink.table.api.SqlDialect;
 import org.apache.flink.table.api.TableEnvironment;
 import org.apache.flink.table.catalog.hive.HiveCatalog;
-import org.apache.flink.table.module.hive.HiveModule;
 
 
 /**
@@ -60,27 +58,12 @@ public class HiveDMLTest {
         HiveCatalog hive = new HiveCatalog("default", defaultDatabase, hiveConfDir);
         tEnv.registerCatalog("myhive", hive);
 
-        tEnv.getConfig().setSqlDialect(SqlDialect.HIVE);
-
         // set the HiveCatalog as the current catalog of the session
         tEnv.useCatalog("myhive");
 
-        String version = "3.1.2";
-        tEnv.loadModule("myhive", new HiveModule(version));
+        long l = System.currentTimeMillis();
 
-        tEnv.executeSql("select count(1) as uv\n"
-                + "     , sum(part_pv) as pv\n"
-                + "     , max(part_max) as max_no\n"
-                + "     , nvl(min(part_min), 1) as min_no\n"
-                + "from (\n"
-                + "    select user_id\n"
-                + "         , count(1) as part_pv\n"
-                + "         , max(order_amount) as part_max\n"
-                + "         , min(order_amount) as part_min\n"
-                + "    from hive_table\n"
-                + "    where p_date = '20210920'\n"
-                + "    group by user_id\n"
-                + ")")
+        tEnv.executeSql("insert into  values(" + l + ", '20210923', '00')")
                 .print();
 
     }

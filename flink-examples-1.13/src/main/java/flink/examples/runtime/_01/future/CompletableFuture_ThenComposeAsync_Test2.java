@@ -1,9 +1,9 @@
-package flink.examples.runtime.future;
+package flink.examples.runtime._01.future;
 
 import java.util.concurrent.CompletableFuture;
 
 
-public class CompletableFuture_ThenApplyAsync_Test2 {
+public class CompletableFuture_ThenComposeAsync_Test2 {
 
     public static void main(String[] args) throws Exception {
         // 第一个任务:
@@ -11,8 +11,8 @@ public class CompletableFuture_ThenApplyAsync_Test2 {
             return queryCode("中国石油");
         });
         // cfQuery成功后继续执行下一个任务:
-        CompletableFuture<String> cfFetch = cfQuery.thenApplyAsync((code) -> {
-            return fetchPrice(code);
+        CompletableFuture<String> cfFetch = cfQuery.thenComposeAsync((code) -> {
+            return CompletableFuture.supplyAsync(() -> fetchPrice(code));
         });
         // cfFetch成功后打印结果:
         cfFetch.thenAccept((result) -> {

@@ -1,9 +1,9 @@
-package flink.examples.runtime.future;
+package flink.examples.runtime._01.future;
 
 import java.util.concurrent.CompletableFuture;
 
 
-public class CompletableFutureTest4 {
+public class CompletableFuture_ThenApplyAsync_Test2 {
 
     public static void main(String[] args) throws Exception {
         // 第一个任务:
