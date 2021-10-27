@@ -72,7 +72,7 @@ public class FlinkEnvUtils {
         env.getCheckpointConfig().setCheckpointTimeout(TimeUnit.MINUTES.toMillis(3));
         // ck 设置
         env.getCheckpointConfig().setFailOnCheckpointingErrors(false);
-        env.enableCheckpointing(30 * 1000L, CheckpointingMode.EXACTLY_ONCE);
+        env.enableCheckpointing(10 * 1000L, CheckpointingMode.EXACTLY_ONCE);
         env.getCheckpointConfig().setMinPauseBetweenCheckpoints(3L);
 
         Configuration configuration = new Configuration();
@@ -85,21 +85,29 @@ public class FlinkEnvUtils {
 
     public static FlinkEnv getStreamTableEnv(String[] args) throws IOException {
 
-        Configuration configuration = new Configuration();
+        ParameterTool parameterTool = ParameterTool.fromArgs(args);
 
-        configuration.setString("execution.savepoint.path", "file:///Users/flink/checkpoints/e43d946904bb807840ce6dfa1686e64d/chk-2");
+        Configuration configuration = Configuration.fromMap(parameterTool.toMap());
+
 
         StreamExecutionEnvironment env =
                 StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(configuration);
 
-        ParameterTool parameterTool = ParameterTool.fromArgs(args);
+        String stateBackend = parameterTool.get("state.backend", "rocksdb");
 
-        setRocksDBStateBackend(env);
+        if ("rocksdb".equals(stateBackend)) {
+
+            setRocksDBStateBackend(env);
+        } else if ("filesystem".equals(stateBackend)) {
+            setFsStateBackend(env);
+        } else if ("jobmanager".equals(stateBackend)) {
+            setMemoryStateBackend(env);
+        }
+
 
         env.setRestartStrategy(RestartStrategies.failureRateRestart(6, org.apache.flink.api.common.time.Time
                 .of(10L, TimeUnit.MINUTES), org.apache.flink.api.common.time.Time.of(5L, TimeUnit.SECONDS)));
         env.getConfig().setGlobalJobParameters(parameterTool);
-        env.setParallelism(10);
 
         EnvironmentSettings settings = EnvironmentSettings
                 .newInstance()
@@ -121,6 +129,14 @@ public class FlinkEnvUtils {
     public static class FlinkEnv {
         private StreamExecutionEnvironment streamExecutionEnvironment;
         private StreamTableEnvironment streamTableEnvironment;
+
+        public StreamTableEnvironment tableEnv() {
+            return this.streamTableEnvironment;
+        }
+
+        public StreamExecutionEnvironment env() {
+            return this.streamExecutionEnvironment;
+        }
     }
 
 }

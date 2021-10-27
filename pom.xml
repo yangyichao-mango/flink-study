@@ -12,6 +12,7 @@
         <module>flink-examples-1.12</module>
         <module>flink-examples-1.13</module>
         <module>flink-examples-1.10</module>
+        <module>flink-examples-1.14</module>
     </modules>
 
     <packaging>pom</packaging>

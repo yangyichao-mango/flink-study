@@ -45,7 +45,7 @@ public class UserDefinedSourceTest {
 
         String sql = "CREATE TABLE source_table (\n"
                 + "    user_id BIGINT,\n"
-                + "    name STRING\n"
+                + "    `name` STRING\n"
                 + ") WITH (\n"
                 + "  'connector' = 'user_defined',\n"
                 + "  'format' = 'json',\n"

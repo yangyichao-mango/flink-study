@@ -62,7 +62,7 @@ public class CumulateWindowTest {
                 + "    max_price BIGINT,\n"
                 + "    min_price BIGINT,\n"
                 + "    uv BIGINT,\n"
-                + "    window_start bigint\n"
+                + "    window_end bigint\n"
                 + ") WITH (\n"
                 + "  'connector' = 'print'\n"
                 + ")";
@@ -74,43 +74,34 @@ public class CumulateWindowTest {
                 + "       max(bucket_max_price) as max_price,\n"
                 + "       min(bucket_min_price) as min_price,\n"
                 + "       sum(bucket_uv) as uv,\n"
-                + "       max(window_start) as window_start\n"
+                + "       max(window_end) as window_end\n"
                 + "from (\n"
                 + "     SELECT dim,\n"
-                + "             UNIX_TIMESTAMP(CAST(window_start AS STRING)) * 1000 as window_start, \n"
-                + "            window_end, \n"
+                + "            UNIX_TIMESTAMP(CAST(window_end AS STRING)) * 1000 as window_end, \n"
+                + "            window_start, \n"
                 + "            count(*) as bucket_pv,\n"
                 + "            sum(price) as bucket_sum_price,\n"
                 + "            max(price) as bucket_max_price,\n"
                 + "            min(price) as bucket_min_price,\n"
                 + "            count(distinct user_id) as bucket_uv\n"
-                + "     FROM TABLE(TUMBLE(\n"
+                + "     FROM TABLE(CUMULATE(\n"
                 + "               TABLE source_table\n"
                 + "               , DESCRIPTOR(row_time)\n"
-                + "               , INTERVAL '60' SECOND))\n"
+                + "               , INTERVAL '60' SECOND\n"
+                + "               , INTERVAL '1' DAY))\n"
                 + "     GROUP BY window_start, \n"
                 + "              window_end,\n"
                 + "              dim,\n"
                 + "              mod(user_id, 1024)\n"
                 + ")\n"
                 + "group by dim,\n"
-                + "         window_start";
+                + "         window_end";
 
-        tEnv.getConfig().getConfiguration().setString("pipeline.name", "1.13.2 WINDOW TVF TUMBLE WINDOW 案例");
+        tEnv.getConfig().getConfiguration().setString("pipeline.name", "1.13.2 WINDOW TVF CUMULATE WINDOW 案例");
 
         tEnv.executeSql(sourceSql);
         tEnv.executeSql(sinkSql);
         tEnv.executeSql(selectWhereSql);
-
-        /**
-         * 两阶段聚合
-         * 本地 agg：{@link org.apache.flink.table.runtime.operators.aggregate.window.LocalSlicingWindowAggOperator}
-         *                   -> {@link org.apache.flink.table.runtime.operators.aggregate.window.combines.LocalAggCombiner}
-         *
-         * key agg；{@link org.apache.flink.table.runtime.operators.window.slicing.SlicingWindowOperator}
-         *    -> {@link org.apache.flink.table.runtime.operators.aggregate.window.processors.SliceUnsharedWindowAggProcessor}
-         *                   -> {@link org.apache.flink.table.runtime.operators.aggregate.window.combines.GlobalAggCombiner}
-         */
     }
 
 }
