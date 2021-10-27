@@ -1,4 +1,4 @@
-package flink.examples.sql._08.batch._01_ddl;
+package flink.examples.sql._08.batch._02_dml;
 
 import java.util.concurrent.TimeUnit;
 
@@ -12,16 +12,19 @@ import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.SqlDialect;
 import org.apache.flink.table.api.TableEnvironment;
 import org.apache.flink.table.catalog.hive.HiveCatalog;
+import org.apache.flink.table.module.CoreModule;
+import org.apache.flink.table.module.hive.HiveModule;
 
 
 /**
- * hive 启动：$HIVE_HOME/bin/hive --service metastore &
- * hive cli：$HIVE_HOME/bin/hive
  * hadoop 启动：/usr/local/Cellar/hadoop/3.2.1/sbin/start-all.sh
  * http://localhost:9870/
  * http://localhost:8088/cluster
+ *
+ * hive 启动：$HIVE_HOME/bin/hive --service metastore &
+ * hive cli：$HIVE_HOME/bin/hive
  */
-public class HiveDDLTest {
+public class HiveDMLBetweenAndTest {
 
     public static void main(String[] args) throws Exception {
 
@@ -59,23 +62,32 @@ public class HiveDDLTest {
         HiveCatalog hive = new HiveCatalog("default", defaultDatabase, hiveConfDir);
         tEnv.registerCatalog("myhive", hive);
 
+        tEnv.getConfig().setSqlDialect(SqlDialect.HIVE);
+
         // set the HiveCatalog as the current catalog of the session
         tEnv.useCatalog("myhive");
 
-        tEnv.getConfig().setSqlDialect(SqlDialect.HIVE);
+        String version = "3.1.2";
+        tEnv.unloadModule("core");
 
-//        String createTableSql = "CREATE TABLE hive_table_1 (\n"
-//                + "    user_id STRING,\n"
-//                + "    order_amount DOUBLE\n"
-//                + ") PARTITIONED BY (\n"
-//                + "    p_date STRING\n"
-//                + ") STORED AS parquet";
+        tEnv.loadModule("myhive", new HiveModule(version));
+        tEnv.loadModule("core", CoreModule.INSTANCE);
 
-//        tEnv.executeSql(createTableSql);
+        String sql = "select count(1) as uv\n"
+                + "     , sum(part_pv) as pv\n"
+                + "     , max(part_max) as max_no\n"
+                + "     , nvl(min(part_min), 1) as min_no\n"
+                + "from (\n"
+                + "    select user_id\n"
+                + "         , count(1) as part_pv\n"
+                + "         , max(order_amount) as part_max\n"
+                + "         , min(order_amount) as part_min\n"
+                + "    from hive_table\n"
+                + "    where p_date between '20210920' and '20210920'\n"
+                + "    group by user_id\n"
+                + ") tmp";
 
-        // hive dialect 支持 insert overwrite table
-        // 默认不支持
-        tEnv.executeSql("insert overwrite table hive_table_1 select * from hive_table")
+        tEnv.executeSql(sql)
                 .print();
 
     }

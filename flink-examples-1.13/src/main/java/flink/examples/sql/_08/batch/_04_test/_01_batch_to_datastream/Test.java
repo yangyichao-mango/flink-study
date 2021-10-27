@@ -1,4 +1,4 @@
-package flink.examples.sql._08.batch._01_ddl;
+package flink.examples.sql._08.batch._04_test._01_batch_to_datastream;
 
 import java.util.concurrent.TimeUnit;
 
@@ -9,22 +9,12 @@ import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.environment.CheckpointConfig;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.EnvironmentSettings;
-import org.apache.flink.table.api.SqlDialect;
 import org.apache.flink.table.api.TableEnvironment;
-import org.apache.flink.table.catalog.hive.HiveCatalog;
+import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 
+public class Test {
 
-/**
- * hive 启动：$HIVE_HOME/bin/hive --service metastore &
- * hive cli：$HIVE_HOME/bin/hive
- * hadoop 启动：/usr/local/Cellar/hadoop/3.2.1/sbin/start-all.sh
- * http://localhost:9870/
- * http://localhost:8088/cluster
- */
-public class HiveDDLTest {
-
-    public static void main(String[] args) throws Exception {
-
+    public static void main(String[] args) {
         StreamExecutionEnvironment env =
                 StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(new Configuration());
 
@@ -33,7 +23,7 @@ public class HiveDDLTest {
         env.setRestartStrategy(RestartStrategies.failureRateRestart(6, org.apache.flink.api.common.time.Time
                 .of(10L, TimeUnit.MINUTES), org.apache.flink.api.common.time.Time.of(5L, TimeUnit.SECONDS)));
         env.getConfig().setGlobalJobParameters(parameterTool);
-        env.setParallelism(10);
+        env.setParallelism(1);
 
         // ck 设置
         env.getCheckpointConfig().setFailOnCheckpointingErrors(false);
@@ -50,34 +40,8 @@ public class HiveDDLTest {
 
         TableEnvironment tEnv = TableEnvironment.create(settings);
 
-        tEnv.getConfig().getConfiguration().setString("pipeline.name", "1.13.2 Interval Outer Join 事件时间案例");
-
-
-        String defaultDatabase = "default";
-        String hiveConfDir = "/usr/local/Cellar/hive/3.1.2/libexec/conf";
-
-        HiveCatalog hive = new HiveCatalog("default", defaultDatabase, hiveConfDir);
-        tEnv.registerCatalog("myhive", hive);
-
-        // set the HiveCatalog as the current catalog of the session
-        tEnv.useCatalog("myhive");
-
-        tEnv.getConfig().setSqlDialect(SqlDialect.HIVE);
-
-//        String createTableSql = "CREATE TABLE hive_table_1 (\n"
-//                + "    user_id STRING,\n"
-//                + "    order_amount DOUBLE\n"
-//                + ") PARTITIONED BY (\n"
-//                + "    p_date STRING\n"
-//                + ") STORED AS parquet";
-
-//        tEnv.executeSql(createTableSql);
-
-        // hive dialect 支持 insert overwrite table
-        // 默认不支持
-        tEnv.executeSql("insert overwrite table hive_table_1 select * from hive_table")
-                .print();
-
+        // TODO 这一行会抛出异常
+        StreamTableEnvironment t1Env = StreamTableEnvironment.create(env, settings);
     }
 
 }

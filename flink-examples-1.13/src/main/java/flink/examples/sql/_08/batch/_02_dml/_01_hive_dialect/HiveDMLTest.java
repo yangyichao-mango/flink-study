@@ -1,4 +1,4 @@
-package flink.examples.sql._08.batch._01_ddl;
+package flink.examples.sql._08.batch._02_dml._01_hive_dialect;
 
 import java.util.concurrent.TimeUnit;
 
@@ -9,7 +9,6 @@ import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.environment.CheckpointConfig;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.EnvironmentSettings;
-import org.apache.flink.table.api.SqlDialect;
 import org.apache.flink.table.api.TableEnvironment;
 import org.apache.flink.table.catalog.hive.HiveCatalog;
 
@@ -21,7 +20,7 @@ import org.apache.flink.table.catalog.hive.HiveCatalog;
  * http://localhost:9870/
  * http://localhost:8088/cluster
  */
-public class HiveDDLTest {
+public class HiveDMLTest {
 
     public static void main(String[] args) throws Exception {
 
@@ -62,20 +61,9 @@ public class HiveDDLTest {
         // set the HiveCatalog as the current catalog of the session
         tEnv.useCatalog("myhive");
 
-        tEnv.getConfig().setSqlDialect(SqlDialect.HIVE);
+        long l = System.currentTimeMillis();
 
-//        String createTableSql = "CREATE TABLE hive_table_1 (\n"
-//                + "    user_id STRING,\n"
-//                + "    order_amount DOUBLE\n"
-//                + ") PARTITIONED BY (\n"
-//                + "    p_date STRING\n"
-//                + ") STORED AS parquet";
-
-//        tEnv.executeSql(createTableSql);
-
-        // hive dialect 支持 insert overwrite table
-        // 默认不支持
-        tEnv.executeSql("insert overwrite table hive_table_1 select * from hive_table")
+        tEnv.executeSql("insert into  values(" + l + ", '20210923', '00')")
                 .print();
 
     }
