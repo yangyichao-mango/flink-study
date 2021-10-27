@@ -1,0 +1,672 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>flink-study</artifactId>
+        <groupId>com.github.antigeneral</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.github.antigeneral</groupId>
+    <artifactId>flink-examples-1.14</artifactId>
+
+    <properties>
+        <flink.version>1.14.0</flink.version>
+    </properties>
+
+<!--    <build>-->
+
+<!--        <extensions>-->
+<!--            <extension>-->
+<!--                <groupId>kr.motd.maven</groupId>-->
+<!--                <artifactId>os-maven-plugin</artifactId>-->
+<!--                <version>${os-maven-plugin.version}</version>-->
+<!--            </extension>-->
+<!--        </extensions>-->
+
+<!--        <plugins>-->
+
+
+<!--            <plugin>-->
+<!--                <groupId>org.apache.maven.plugins</groupId>-->
+<!--                <artifactId>maven-compiler-plugin</artifactId>-->
+<!--            </plugin>-->
+
+<!--            <plugin>-->
+<!--                <groupId>org.xolstice.maven.plugins</groupId>-->
+<!--                <artifactId>protobuf-maven-plugin</artifactId>-->
+<!--            </plugin>-->
+
+<!--            &lt;!&ndash;            <plugin>&ndash;&gt;-->
+<!--            &lt;!&ndash;                &lt;!&ndash; Extract parser grammar template from calcite-core.jar and put&ndash;&gt;-->
+<!--            &lt;!&ndash;                     it under ${project.build.directory} where all freemarker templates are. &ndash;&gt;&ndash;&gt;-->
+<!--            &lt;!&ndash;                <groupId>org.apache.maven.plugins</groupId>&ndash;&gt;-->
+<!--            &lt;!&ndash;                <artifactId>maven-dependency-plugin</artifactId>&ndash;&gt;-->
+<!--            &lt;!&ndash;                <executions>&ndash;&gt;-->
+<!--            &lt;!&ndash;                    <execution>&ndash;&gt;-->
+<!--            &lt;!&ndash;                        <id>unpack-parser-template</id>&ndash;&gt;-->
+<!--            &lt;!&ndash;                        <phase>initialize</phase>&ndash;&gt;-->
+<!--            &lt;!&ndash;                        <goals>&ndash;&gt;-->
+<!--            &lt;!&ndash;                            <goal>unpack</goal>&ndash;&gt;-->
+<!--            &lt;!&ndash;                        </goals>&ndash;&gt;-->
+<!--            &lt;!&ndash;                        <configuration>&ndash;&gt;-->
+<!--            &lt;!&ndash;                            <artifactItems>&ndash;&gt;-->
+<!--            &lt;!&ndash;                                <artifactItem>&ndash;&gt;-->
+<!--            &lt;!&ndash;                                    <groupId>org.apache.calcite</groupId>&ndash;&gt;-->
+<!--            &lt;!&ndash;                                    <artifactId>calcite-core</artifactId>&ndash;&gt;-->
+<!--            &lt;!&ndash;                                    <type>jar</type>&ndash;&gt;-->
+<!--            &lt;!&ndash;                                    <overWrite>true</overWrite>&ndash;&gt;-->
+<!--            &lt;!&ndash;                                    <outputDirectory>${project.build.directory}/</outputDirectory>&ndash;&gt;-->
+<!--            &lt;!&ndash;                                    <includes>**/Parser.jj</includes>&ndash;&gt;-->
+<!--            &lt;!&ndash;                                </artifactItem>&ndash;&gt;-->
+<!--            &lt;!&ndash;                            </artifactItems>&ndash;&gt;-->
+<!--            &lt;!&ndash;                        </configuration>&ndash;&gt;-->
+<!--            &lt;!&ndash;                    </execution>&ndash;&gt;-->
+<!--            &lt;!&ndash;                </executions>&ndash;&gt;-->
+<!--            &lt;!&ndash;            </plugin>&ndash;&gt;-->
+<!--            &lt;!&ndash;            &lt;!&ndash; adding fmpp code gen &ndash;&gt;&ndash;&gt;-->
+<!--            &lt;!&ndash;            <plugin>&ndash;&gt;-->
+<!--            &lt;!&ndash;                <artifactId>maven-resources-plugin</artifactId>&ndash;&gt;-->
+<!--            &lt;!&ndash;            </plugin>&ndash;&gt;-->
+<!--            &lt;!&ndash;            <plugin>&ndash;&gt;-->
+<!--            &lt;!&ndash;                <groupId>com.googlecode.fmpp-maven-plugin</groupId>&ndash;&gt;-->
+<!--            &lt;!&ndash;                <artifactId>fmpp-maven-plugin</artifactId>&ndash;&gt;-->
+<!--            &lt;!&ndash;            </plugin>&ndash;&gt;-->
+<!--            &lt;!&ndash;            <plugin>&ndash;&gt;-->
+<!--            &lt;!&ndash;                &lt;!&ndash; This must be run AFTER the fmpp-maven-plugin &ndash;&gt;&ndash;&gt;-->
+<!--            &lt;!&ndash;                <groupId>org.codehaus.mojo</groupId>&ndash;&gt;-->
+<!--            &lt;!&ndash;                <artifactId>javacc-maven-plugin</artifactId>&ndash;&gt;-->
+<!--            &lt;!&ndash;            </plugin>&ndash;&gt;-->
+<!--            &lt;!&ndash;            <plugin>&ndash;&gt;-->
+<!--            &lt;!&ndash;                <groupId>org.apache.maven.plugins</groupId>&ndash;&gt;-->
+<!--            &lt;!&ndash;                <artifactId>maven-surefire-plugin</artifactId>&ndash;&gt;-->
+<!--            &lt;!&ndash;            </plugin>&ndash;&gt;-->
+<!--        </plugins>-->
+<!--    </build>-->
+
+
+<!--    <dependencies>-->
+
+
+<!--        <dependency>-->
+<!--            <groupId>com.google.protobuf</groupId>-->
+<!--            <artifactId>protobuf-java</artifactId>-->
+<!--        </dependency>-->
+
+<!--        <dependency>-->
+<!--            <groupId>org.apache.flink</groupId>-->
+<!--            <artifactId>flink-connector-hive_2.11</artifactId>-->
+<!--        </dependency>-->
+
+<!--        <dependency>-->
+<!--            <groupId>org.apache.hadoop</groupId>-->
+<!--            <artifactId>hadoop-common</artifactId>-->
+<!--            <version>3.1.0</version>-->
+<!--            <scope>compile</scope>-->
+<!--            <exclusions>-->
+<!--                <exclusion>-->
+<!--                    <artifactId>slf4j-log4j12</artifactId>-->
+<!--                    <groupId>org.slf4j</groupId>-->
+<!--                </exclusion>-->
+<!--                <exclusion>-->
+<!--                    <artifactId>commons-logging</artifactId>-->
+<!--                    <groupId>commmons-logging</groupId>-->
+<!--                </exclusion>-->
+<!--                <exclusion>-->
+<!--                    <artifactId>servlet-api</artifactId>-->
+<!--                    <groupId>javax.servlet</groupId>-->
+<!--                </exclusion>-->
+<!--            </exclusions>-->
+<!--            <optional>true</optional>-->
+<!--        </dependency>-->
+
+<!--        <dependency>-->
+<!--            <groupId>org.apache.hive</groupId>-->
+<!--            <artifactId>hive-exec</artifactId>-->
+<!--            <exclusions>-->
+<!--                <exclusion>-->
+<!--                    <artifactId>log4j-slf4j-impl</artifactId>-->
+<!--                    <groupId>org.apache.logging.log4j</groupId>-->
+<!--                </exclusion>-->
+<!--                <exclusion>-->
+<!--                    <artifactId>guava</artifactId>-->
+<!--                    <groupId>com.google.guava</groupId>-->
+<!--                </exclusion>-->
+<!--                &lt;!&ndash;                <exclusion>&ndash;&gt;-->
+<!--                &lt;!&ndash;                    <artifactId>hadoop-common</artifactId>&ndash;&gt;-->
+<!--                &lt;!&ndash;                    <groupId>org.apache.hadoop</groupId>&ndash;&gt;-->
+<!--                &lt;!&ndash;                </exclusion>&ndash;&gt;-->
+<!--            </exclusions>-->
+<!--        </dependency>-->
+<!--        &lt;!&ndash;        <dependency>&ndash;&gt;-->
+<!--        &lt;!&ndash;            <groupId>org.apache.hadoop</groupId>&ndash;&gt;-->
+<!--        &lt;!&ndash;            <artifactId>hadoop-common</artifactId>&ndash;&gt;-->
+<!--        &lt;!&ndash;            <version>${hadoop.version}</version>&ndash;&gt;-->
+<!--        &lt;!&ndash;            <exclusions>&ndash;&gt;-->
+<!--        &lt;!&ndash;                <exclusion>&ndash;&gt;-->
+<!--        &lt;!&ndash;                    <artifactId>slf4j-log4j12</artifactId>&ndash;&gt;-->
+<!--        &lt;!&ndash;                    <groupId>org.slf4j</groupId>&ndash;&gt;-->
+<!--        &lt;!&ndash;                </exclusion>&ndash;&gt;-->
+<!--        &lt;!&ndash;                <exclusion>&ndash;&gt;-->
+<!--        &lt;!&ndash;                    <artifactId>jsr311-api</artifactId>&ndash;&gt;-->
+<!--        &lt;!&ndash;                    <groupId>javax.ws.rs</groupId>&ndash;&gt;-->
+<!--        &lt;!&ndash;                </exclusion>&ndash;&gt;-->
+<!--        &lt;!&ndash;                <exclusion>&ndash;&gt;-->
+<!--        &lt;!&ndash;                    <artifactId>jersey-core</artifactId>&ndash;&gt;-->
+<!--        &lt;!&ndash;                    <groupId>com.sun.jersey</groupId>&ndash;&gt;-->
+<!--        &lt;!&ndash;                </exclusion>&ndash;&gt;-->
+<!--        &lt;!&ndash;                <exclusion>&ndash;&gt;-->
+<!--        &lt;!&ndash;                    <artifactId>jersey-server</artifactId>&ndash;&gt;-->
+<!--        &lt;!&ndash;                    <groupId>com.sun.jersey</groupId>&ndash;&gt;-->
+<!--        &lt;!&ndash;                </exclusion>&ndash;&gt;-->
+<!--        &lt;!&ndash;                <exclusion>&ndash;&gt;-->
+<!--        &lt;!&ndash;                    <artifactId>jersey-servlet</artifactId>&ndash;&gt;-->
+<!--        &lt;!&ndash;                    <groupId>com.sun.jersey</groupId>&ndash;&gt;-->
+<!--        &lt;!&ndash;                </exclusion>&ndash;&gt;-->
+<!--        &lt;!&ndash;                <exclusion>&ndash;&gt;-->
+<!--        &lt;!&ndash;                    <artifactId>jersey-json</artifactId>&ndash;&gt;-->
+<!--        &lt;!&ndash;                    <groupId>com.sun.jersey</groupId>&ndash;&gt;-->
+<!--        &lt;!&ndash;                </exclusion>&ndash;&gt;-->
+<!--        &lt;!&ndash;            </exclusions>&ndash;&gt;-->
+<!--        &lt;!&ndash;        </dependency>&ndash;&gt;-->
+<!--        &lt;!&ndash;        <dependency>&ndash;&gt;-->
+<!--        &lt;!&ndash;            <groupId>org.apache.hadoop</groupId>&ndash;&gt;-->
+<!--        &lt;!&ndash;            <artifactId>hadoop-client</artifactId>&ndash;&gt;-->
+<!--        &lt;!&ndash;            <version>${hadoop.version}</version>&ndash;&gt;-->
+<!--        &lt;!&ndash;            <exclusions>&ndash;&gt;-->
+<!--        &lt;!&ndash;                <exclusion>&ndash;&gt;-->
+<!--        &lt;!&ndash;                    <artifactId>guava</artifactId>&ndash;&gt;-->
+<!--        &lt;!&ndash;                    <groupId>com.google.guava</groupId>&ndash;&gt;-->
+<!--        &lt;!&ndash;                </exclusion>&ndash;&gt;-->
+<!--        &lt;!&ndash;                <exclusion>&ndash;&gt;-->
+<!--        &lt;!&ndash;                    <artifactId>hadoop-common</artifactId>&ndash;&gt;-->
+<!--        &lt;!&ndash;                    <groupId>org.apache.hadoop</groupId>&ndash;&gt;-->
+<!--        &lt;!&ndash;                </exclusion>&ndash;&gt;-->
+<!--        &lt;!&ndash;            </exclusions>&ndash;&gt;-->
+<!--        &lt;!&ndash;        </dependency>&ndash;&gt;-->
+<!--        &lt;!&ndash;        <dependency>&ndash;&gt;-->
+<!--        &lt;!&ndash;            <groupId>org.apache.hadoop</groupId>&ndash;&gt;-->
+<!--        &lt;!&ndash;            <artifactId>hadoop-hdfs</artifactId>&ndash;&gt;-->
+<!--        &lt;!&ndash;            <version>${hadoop.version}</version>&ndash;&gt;-->
+<!--        &lt;!&ndash;            <exclusions>&ndash;&gt;-->
+<!--        &lt;!&ndash;                <exclusion>&ndash;&gt;-->
+<!--        &lt;!&ndash;                    <artifactId>jsr311-api</artifactId>&ndash;&gt;-->
+<!--        &lt;!&ndash;                    <groupId>javax.ws.rs</groupId>&ndash;&gt;-->
+<!--        &lt;!&ndash;                </exclusion>&ndash;&gt;-->
+<!--        &lt;!&ndash;                <exclusion>&ndash;&gt;-->
+<!--        &lt;!&ndash;                    <artifactId>jersey-core</artifactId>&ndash;&gt;-->
+<!--        &lt;!&ndash;                    <groupId>com.sun.jersey</groupId>&ndash;&gt;-->
+<!--        &lt;!&ndash;                </exclusion>&ndash;&gt;-->
+<!--        &lt;!&ndash;                <exclusion>&ndash;&gt;-->
+<!--        &lt;!&ndash;                    <artifactId>jersey-server</artifactId>&ndash;&gt;-->
+<!--        &lt;!&ndash;                    <groupId>com.sun.jersey</groupId>&ndash;&gt;-->
+<!--        &lt;!&ndash;                </exclusion>&ndash;&gt;-->
+<!--        &lt;!&ndash;                <exclusion>&ndash;&gt;-->
+<!--        &lt;!&ndash;                    <artifactId>guava</artifactId>&ndash;&gt;-->
+<!--        &lt;!&ndash;                    <groupId>com.google.guava</groupId>&ndash;&gt;-->
+<!--        &lt;!&ndash;                </exclusion>&ndash;&gt;-->
+<!--        &lt;!&ndash;            </exclusions>&ndash;&gt;-->
+<!--        &lt;!&ndash;        </dependency>&ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>org.apache.hadoop</groupId>-->
+<!--            <artifactId>hadoop-mapreduce-client-core</artifactId>-->
+<!--            <version>3.1.0</version>-->
+<!--            <exclusions>-->
+<!--                <exclusion>-->
+<!--                    <artifactId>slf4j-log4j12</artifactId>-->
+<!--                    <groupId>org.slf4j</groupId>-->
+<!--                </exclusion>-->
+<!--                <exclusion>-->
+<!--                    <artifactId>jersey-client</artifactId>-->
+<!--                    <groupId>com.sun.jersey</groupId>-->
+<!--                </exclusion>-->
+<!--                <exclusion>-->
+<!--                    <artifactId>jersey-server</artifactId>-->
+<!--                    <groupId>com.sun.jersey</groupId>-->
+<!--                </exclusion>-->
+<!--                <exclusion>-->
+<!--                    <artifactId>jersey-servlet</artifactId>-->
+<!--                    <groupId>com.sun.jersey</groupId>-->
+<!--                </exclusion>-->
+<!--                <exclusion>-->
+<!--                    <artifactId>jersey-core</artifactId>-->
+<!--                    <groupId>com.sun.jersey</groupId>-->
+<!--                </exclusion>-->
+<!--                <exclusion>-->
+<!--                    <artifactId>jersey-json</artifactId>-->
+<!--                    <groupId>com.sun.jersey</groupId>-->
+<!--                </exclusion>-->
+<!--                <exclusion>-->
+<!--                    <artifactId>guava</artifactId>-->
+<!--                    <groupId>com.google.guava</groupId>-->
+<!--                </exclusion>-->
+<!--            </exclusions>-->
+<!--        </dependency>-->
+
+<!--        &lt;!&ndash; https://mvnrepository.com/artifact/net.mguenther.kafka/kafka-junit &ndash;&gt;-->
+<!--        &lt;!&ndash;        <dependency>&ndash;&gt;-->
+<!--        &lt;!&ndash;            <groupId>net.mguenther.kafka</groupId>&ndash;&gt;-->
+<!--        &lt;!&ndash;            <artifactId>kafka-junit</artifactId>&ndash;&gt;-->
+<!--        &lt;!&ndash;        </dependency>&ndash;&gt;-->
+
+<!--        &lt;!&ndash; https://mvnrepository.com/artifact/org.scala-lang/scala-library &ndash;&gt;-->
+<!--        &lt;!&ndash;        <dependency>&ndash;&gt;-->
+<!--        &lt;!&ndash;            <groupId>org.scala-lang</groupId>&ndash;&gt;-->
+<!--        &lt;!&ndash;            <artifactId>scala-library</artifactId>&ndash;&gt;-->
+<!--        &lt;!&ndash;        </dependency>&ndash;&gt;-->
+
+<!--        <dependency>-->
+<!--            <groupId>com.twitter</groupId>-->
+<!--            <artifactId>chill-protobuf</artifactId>-->
+<!--            &lt;!&ndash; exclusions for dependency conversion &ndash;&gt;-->
+<!--            <exclusions>-->
+<!--                <exclusion>-->
+<!--                    <groupId>com.esotericsoftware.kryo</groupId>-->
+<!--                    <artifactId>kryo</artifactId>-->
+<!--                </exclusion>-->
+<!--            </exclusions>-->
+<!--        </dependency>-->
+
+<!--        &lt;!&ndash;        <dependency>&ndash;&gt;-->
+<!--        &lt;!&ndash;            <groupId>org.apache.kafka</groupId>&ndash;&gt;-->
+<!--        &lt;!&ndash;            <artifactId>kafka_2.13</artifactId>&ndash;&gt;-->
+<!--        &lt;!&ndash;        </dependency>&ndash;&gt;-->
+
+
+<!--        <dependency>-->
+<!--            <groupId>junit</groupId>-->
+<!--            <artifactId>junit</artifactId>-->
+<!--            <scope>test</scope>-->
+<!--        </dependency>-->
+
+<!--        <dependency>-->
+<!--            <groupId>net.java.dev.javacc</groupId>-->
+<!--            <artifactId>javacc</artifactId>-->
+<!--        </dependency>-->
+
+<!--        <dependency>-->
+<!--            <groupId>org.apache.httpcomponents</groupId>-->
+<!--            <artifactId>httpclient</artifactId>-->
+<!--            <version>4.5.10</version>-->
+<!--            <scope>compile</scope>-->
+<!--        </dependency>-->
+
+<!--        <dependency>-->
+<!--            <groupId>org.apache.flink</groupId>-->
+<!--            <artifactId>flink-statebackend-rocksdb_2.11</artifactId>-->
+<!--            <version>${flink.version}</version>-->
+<!--        </dependency>-->
+
+<!--        <dependency>-->
+<!--            <groupId>joda-time</groupId>-->
+<!--            <artifactId>joda-time</artifactId>-->
+<!--            &lt;!&ndash; managed version &ndash;&gt;-->
+<!--            <scope>provided</scope>-->
+<!--            &lt;!&ndash; Avro records can contain JodaTime fields when using logical fields.-->
+<!--                In order to handle them, we need to add an optional dependency.-->
+<!--                Users with those Avro records need to add this dependency themselves. &ndash;&gt;-->
+<!--            <optional>true</optional>-->
+<!--        </dependency>-->
+
+<!--        &lt;!&ndash; https://mvnrepository.com/artifact/com.github.rholder/guava-retrying &ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>com.github.rholder</groupId>-->
+<!--            <artifactId>guava-retrying</artifactId>-->
+<!--            <exclusions>-->
+<!--                <exclusion>-->
+<!--                    <artifactId>guava</artifactId>-->
+<!--                    <groupId>com.google.guava</groupId>-->
+<!--                </exclusion>-->
+<!--            </exclusions>-->
+<!--        </dependency>-->
+
+<!--        <dependency>-->
+<!--            <groupId>org.projectlombok</groupId>-->
+<!--            <artifactId>lombok</artifactId>-->
+<!--        </dependency>-->
+
+<!--        <dependency>-->
+<!--            <groupId>org.apache.flink</groupId>-->
+<!--            <artifactId>flink-java</artifactId>-->
+<!--            <version>${flink.version}</version>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.apache.flink</groupId>-->
+<!--            <artifactId>flink-streaming-java_2.11</artifactId>-->
+<!--            <version>${flink.version}</version>-->
+<!--            <exclusions>-->
+<!--                <exclusion>-->
+<!--                    <artifactId>flink-shaded-zookeeper-3</artifactId>-->
+<!--                    <groupId>org.apache.flink</groupId>-->
+<!--                </exclusion>-->
+<!--                <exclusion>-->
+<!--                    <artifactId>flink-shaded-guava</artifactId>-->
+<!--                    <groupId>org.apache.flink</groupId>-->
+<!--                </exclusion>-->
+<!--            </exclusions>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.apache.flink</groupId>-->
+<!--            <artifactId>flink-clients_2.11</artifactId>-->
+<!--            <version>${flink.version}</version>-->
+<!--        </dependency>-->
+
+<!--        &lt;!&ndash; https://mvnrepository.com/artifact/org.mvel/mvel2 &ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>org.mvel</groupId>-->
+<!--            <artifactId>mvel2</artifactId>-->
+<!--        </dependency>-->
+
+<!--        &lt;!&ndash; https://mvnrepository.com/artifact/redis.clients/jedis &ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>redis.clients</groupId>-->
+<!--            <artifactId>jedis</artifactId>-->
+<!--        </dependency>-->
+
+<!--        &lt;!&ndash; 对zookeeper的底层api的一些封装 &ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>org.apache.curator</groupId>-->
+<!--            <artifactId>curator-framework</artifactId>-->
+<!--        </dependency>-->
+<!--        &lt;!&ndash; 封装了一些高级特性，如：Cache事件监听、选举、分布式锁、分布式Barrier &ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>org.apache.curator</groupId>-->
+<!--            <artifactId>curator-recipes</artifactId>-->
+<!--        </dependency>-->
+
+<!--        <dependency>-->
+<!--            <groupId>org.apache.kafka</groupId>-->
+<!--            <artifactId>kafka-clients</artifactId>-->
+<!--        </dependency>-->
+
+<!--        <dependency>-->
+<!--            <groupId>org.codehaus.groovy</groupId>-->
+<!--            <artifactId>groovy</artifactId>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.codehaus.groovy</groupId>-->
+<!--            <artifactId>groovy-ant</artifactId>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.codehaus.groovy</groupId>-->
+<!--            <artifactId>groovy-cli-commons</artifactId>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.codehaus.groovy</groupId>-->
+<!--            <artifactId>groovy-cli-picocli</artifactId>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.codehaus.groovy</groupId>-->
+<!--            <artifactId>groovy-console</artifactId>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.codehaus.groovy</groupId>-->
+<!--            <artifactId>groovy-datetime</artifactId>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.codehaus.groovy</groupId>-->
+<!--            <artifactId>groovy-docgenerator</artifactId>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.codehaus.groovy</groupId>-->
+<!--            <artifactId>groovy-groovydoc</artifactId>-->
+
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.codehaus.groovy</groupId>-->
+<!--            <artifactId>groovy-groovysh</artifactId>-->
+
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.codehaus.groovy</groupId>-->
+<!--            <artifactId>groovy-jmx</artifactId>-->
+
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.codehaus.groovy</groupId>-->
+<!--            <artifactId>groovy-json</artifactId>-->
+
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.codehaus.groovy</groupId>-->
+<!--            <artifactId>groovy-jsr223</artifactId>-->
+
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.codehaus.groovy</groupId>-->
+<!--            <artifactId>groovy-macro</artifactId>-->
+
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.codehaus.groovy</groupId>-->
+<!--            <artifactId>groovy-nio</artifactId>-->
+
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.codehaus.groovy</groupId>-->
+<!--            <artifactId>groovy-servlet</artifactId>-->
+
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.codehaus.groovy</groupId>-->
+<!--            <artifactId>groovy-sql</artifactId>-->
+
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.codehaus.groovy</groupId>-->
+<!--            <artifactId>groovy-swing</artifactId>-->
+
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.codehaus.groovy</groupId>-->
+<!--            <artifactId>groovy-templates</artifactId>-->
+
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.codehaus.groovy</groupId>-->
+<!--            <artifactId>groovy-test</artifactId>-->
+
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.codehaus.groovy</groupId>-->
+<!--            <artifactId>groovy-test-junit5</artifactId>-->
+
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.codehaus.groovy</groupId>-->
+<!--            <artifactId>groovy-testng</artifactId>-->
+
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.codehaus.groovy</groupId>-->
+<!--            <artifactId>groovy-xml</artifactId>-->
+
+<!--        </dependency>-->
+
+<!--        <dependency>-->
+<!--            <groupId>org.apache.flink</groupId>-->
+<!--            <artifactId>flink-table-planner_2.11</artifactId>-->
+<!--            <version>${flink.version}</version>-->
+<!--        </dependency>-->
+
+<!--        <dependency>-->
+<!--            <groupId>com.google.code.gson</groupId>-->
+<!--            <artifactId>gson</artifactId>-->
+
+<!--        </dependency>-->
+
+<!--        <dependency>-->
+<!--            <groupId>org.apache.flink</groupId>-->
+<!--            <artifactId>flink-table-common</artifactId>-->
+<!--            <version>${flink.version}</version>-->
+<!--            <scope>compile</scope>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.apache.flink</groupId>-->
+<!--            <artifactId>flink-table-api-java</artifactId>-->
+<!--            <version>${flink.version}</version>-->
+<!--            <scope>compile</scope>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.apache.flink</groupId>-->
+<!--            <artifactId>flink-table-api-java-bridge_2.11</artifactId>-->
+<!--            <version>${flink.version}</version>-->
+<!--            <scope>compile</scope>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.apache.flink</groupId>-->
+<!--            <artifactId>flink-table-planner_2.11</artifactId>-->
+<!--            <version>${flink.version}</version>-->
+<!--            <scope>compile</scope>-->
+<!--        </dependency>-->
+
+<!--        &lt;!&ndash; https://mvnrepository.com/artifact/org.apache.flink/flink-connector-jdbc &ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>org.apache.flink</groupId>-->
+<!--            <artifactId>flink-connector-jdbc_2.11</artifactId>-->
+<!--            <version>${flink.version}</version>-->
+<!--        </dependency>-->
+
+<!--        <dependency>-->
+<!--            <groupId>org.apache.flink</groupId>-->
+<!--            <artifactId>flink-connector-hbase-2.2_2.11</artifactId>-->
+<!--            <version>${flink.version}</version>-->
+<!--            <exclusions>-->
+<!--                <exclusion>-->
+<!--                    <artifactId>hbase-shaded-miscellaneous</artifactId>-->
+<!--                    <groupId>org.apache.hbase.thirdparty</groupId>-->
+<!--                </exclusion>-->
+<!--            </exclusions>-->
+<!--        </dependency>-->
+
+<!--        <dependency>-->
+<!--            <groupId>org.apache.flink</groupId>-->
+<!--            <artifactId>flink-json</artifactId>-->
+<!--            <version>${flink.version}</version>-->
+<!--        </dependency>-->
+
+<!--        &lt;!&ndash; https://mvnrepository.com/artifact/org.apache.bahir/flink-connector-redis &ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>org.apache.bahir</groupId>-->
+<!--            <artifactId>flink-connector-redis_2.10</artifactId>-->
+<!--            <version>1.0</version>-->
+<!--        </dependency>-->
+
+
+<!--        &lt;!&ndash; https://mvnrepository.com/artifact/org.apache.flink/flink-connector-kafka &ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>org.apache.flink</groupId>-->
+<!--            <artifactId>flink-connector-kafka_2.12</artifactId>-->
+
+<!--        </dependency>-->
+
+
+<!--        <dependency>-->
+<!--            <groupId>ch.qos.logback</groupId>-->
+<!--            <artifactId>logback-classic</artifactId>-->
+<!--            <scope>compile</scope>-->
+
+<!--        </dependency>-->
+
+<!--        &lt;!&ndash; https://mvnrepository.com/artifact/org.slf4j/slf4j-log4j12 &ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>org.slf4j</groupId>-->
+<!--            <artifactId>slf4j-log4j12</artifactId>-->
+
+<!--        </dependency>-->
+
+<!--        <dependency>-->
+
+<!--            <groupId>org.apache.flink</groupId>-->
+
+<!--            <artifactId>flink-runtime-web_2.11</artifactId>-->
+
+<!--            <version>${flink.version}</version>-->
+
+<!--        </dependency>-->
+
+<!--        &lt;!&ndash; https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind &ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>com.fasterxml.jackson.core</groupId>-->
+<!--            <artifactId>jackson-databind</artifactId>-->
+
+<!--        </dependency>-->
+
+<!--        <dependency>-->
+<!--            <groupId>com.fasterxml.jackson.core</groupId>-->
+<!--            <artifactId>jackson-core</artifactId>-->
+
+<!--        </dependency>-->
+
+<!--        <dependency>-->
+<!--            <groupId>com.fasterxml.jackson.core</groupId>-->
+<!--            <artifactId>jackson-annotations</artifactId>-->
+
+<!--        </dependency>-->
+
+<!--        &lt;!&ndash; https://mvnrepository.com/artifact/com.fasterxml.jackson.module/jackson-module-kotlin &ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>com.fasterxml.jackson.module</groupId>-->
+<!--            <artifactId>jackson-module-kotlin</artifactId>-->
+
+<!--        </dependency>-->
+
+<!--        &lt;!&ndash; https://mvnrepository.com/artifact/com.fasterxml.jackson.module/jackson-module-parameter-names &ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>com.fasterxml.jackson.module</groupId>-->
+<!--            <artifactId>jackson-module-parameter-names</artifactId>-->
+
+<!--        </dependency>-->
+
+<!--        &lt;!&ndash; https://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-guava &ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>com.fasterxml.jackson.datatype</groupId>-->
+<!--            <artifactId>jackson-datatype-guava</artifactId>-->
+<!--            <exclusions>-->
+<!--                <exclusion>-->
+<!--                    <artifactId>guava</artifactId>-->
+<!--                    <groupId>com.google.guava</groupId>-->
+<!--                </exclusion>-->
+<!--            </exclusions>-->
+
+<!--        </dependency>-->
+
+
+<!--        &lt;!&ndash; https://mvnrepository.com/artifact/com.hubspot.jackson/jackson-datatype-protobuf &ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>com.hubspot.jackson</groupId>-->
+<!--            <artifactId>jackson-datatype-protobuf</artifactId>-->
+<!--            <exclusions>-->
+<!--                <exclusion>-->
+<!--                    <artifactId>guava</artifactId>-->
+<!--                    <groupId>com.google.guava</groupId>-->
+<!--                </exclusion>-->
+<!--            </exclusions>-->
+
+<!--        </dependency>-->
+
+<!--        &lt;!&ndash; https://mvnrepository.com/artifact/org.apache.calcite/calcite-core &ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>org.apache.calcite</groupId>-->
+<!--            <artifactId>calcite-core</artifactId>-->
+<!--            <exclusions>-->
+<!--                <exclusion>-->
+<!--                    <artifactId>guava</artifactId>-->
+<!--                    <groupId>com.google.guava</groupId>-->
+<!--                </exclusion>-->
+<!--            </exclusions>-->
+
+<!--        </dependency>-->
+
+<!--        <dependency>-->
+<!--            <groupId>com.google.guava</groupId>-->
+<!--            <artifactId>guava</artifactId>-->
+<!--        </dependency>-->
+
+
+<!--    </dependencies>-->
+
+
+</project>
