@@ -10,6 +10,7 @@ import org.apache.hadoop.hive.serde2.objectinspector.PrimitiveObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorFactory;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorUtils;
 import org.apache.hadoop.hive.serde2.typeinfo.TypeInfo;
+import org.apache.hadoop.io.Text;
 
 public class TestHiveUDAF implements GenericUDAFResolver2 {
 
@@ -76,7 +77,7 @@ public class TestHiveUDAF implements GenericUDAFResolver2 {
         @Override
         public Object terminate(AggregationBuffer agg) throws HiveException {
 
-            return ((StringAgg) agg).all;
+            return new Text(((StringAgg) agg).all);
         }
 
 

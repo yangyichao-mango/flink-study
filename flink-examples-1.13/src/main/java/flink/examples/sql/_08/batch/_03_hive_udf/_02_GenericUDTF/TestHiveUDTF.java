@@ -13,7 +13,7 @@ import org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectIn
 public class TestHiveUDTF extends GenericUDTF {
 
     @Override
-    public StructObjectInspector initialize(StructObjectInspector argOIs) throws UDFArgumentException {
+    public StructObjectInspector initialize(ObjectInspector[] argOIs) throws UDFArgumentException {
         ArrayList<String> fieldNames = new ArrayList<String>() {{
             add("column1");
         }};

@@ -1,4 +1,4 @@
-package flink.examples.sql._08.batch._03_hive_udf._02_GenericUDTF;
+package flink.examples.sql._08.batch._03_hive_udf._03_built_in_udf._01_get_json_object;
 
 import java.util.concurrent.TimeUnit;
 
@@ -25,9 +25,9 @@ import flink.examples.sql._08.batch._03_hive_udf.HiveModuleV2;
  * hive 启动：$HIVE_HOME/bin/hive --service metastore &
  * hive cli：$HIVE_HOME/bin/hive
  */
-public class HiveUDTF_sql_registry_Test {
+public class HiveUDF_get_json_object_Test {
 
-    public static void main(String[] args) throws ClassNotFoundException {
+    public static void main(String[] args) {
         StreamExecutionEnvironment env =
                 StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(new Configuration());
 
@@ -75,14 +75,14 @@ public class HiveUDTF_sql_registry_Test {
         tEnv.loadModule("default", hiveModuleV2);
         tEnv.loadModule("core", CoreModule.INSTANCE);
 
-        // TODO sql 执行创建 hive udtf 会报错
-        String sql2 = "CREATE TEMPORARY FUNCTION test_hive_udtf as 'flink.examples.sql._08.batch._03_hive_udf._02_GenericUDTF.TestHiveUDTF'";
-
-        String sql3 = "select test_hive_udtf(user_id)\n"
+        String sql3 = "select get_json_object(user_id, '$.user_id')\n"
+                + "         , count(1) as part_pv\n"
+                + "         , max(order_amount) as part_max\n"
+                + "         , min(order_amount) as part_min\n"
                 + "    from hive_table\n"
-                + "    where p_date between '20210920' and '20210920'\n";
+                + "    where p_date between '20210920' and '20210920'\n"
+                + "    group by get_json_object(user_id, '$.user_id')";
 
-        tEnv.executeSql(sql2);
         tEnv.executeSql(sql3)
                 .print();
     }

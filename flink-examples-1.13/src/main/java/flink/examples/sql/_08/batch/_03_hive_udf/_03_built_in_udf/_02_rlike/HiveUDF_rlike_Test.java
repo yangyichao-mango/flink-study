@@ -1,4 +1,4 @@
-package flink.examples.sql._08.batch._03_hive_udf._01_GenericUDAFResolver2;
+package flink.examples.sql._08.batch._03_hive_udf._03_built_in_udf._02_rlike;
 
 import java.util.concurrent.TimeUnit;
 
@@ -12,7 +12,6 @@ import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.SqlDialect;
 import org.apache.flink.table.api.TableEnvironment;
 import org.apache.flink.table.catalog.hive.HiveCatalog;
-import org.apache.flink.table.module.CoreModule;
 
 import flink.examples.sql._08.batch._03_hive_udf.HiveModuleV2;
 
@@ -25,9 +24,9 @@ import flink.examples.sql._08.batch._03_hive_udf.HiveModuleV2;
  * hive 启动：$HIVE_HOME/bin/hive --service metastore &
  * hive cli：$HIVE_HOME/bin/hive
  */
-public class HiveUDAF_sql_registry_Test {
+public class HiveUDF_rlike_Test {
 
-    public static void main(String[] args) throws ClassNotFoundException {
+    public static void main(String[] args) {
         StreamExecutionEnvironment env =
                 StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(new Configuration());
 
@@ -68,25 +67,22 @@ public class HiveUDAF_sql_registry_Test {
         tEnv.useCatalog("default");
 
         String version = "3.1.2";
-        tEnv.unloadModule("core");
 
         HiveModuleV2 hiveModuleV2 = new HiveModuleV2(version);
 
         tEnv.loadModule("default", hiveModuleV2);
-        tEnv.loadModule("core", CoreModule.INSTANCE);
 
-        // TODO sql 执行创建 hive udtf 会报错
-        String sql2 = "CREATE TEMPORARY FUNCTION test_hive_udaf as 'flink.examples.sql._08.batch._03_hive_udf._01_GenericUDAFResolver2.TestHiveUDAF'";
-
-        String sql3 = "select test_hive_udaf(user_id, '20210920')\n"
+        // TODO hive module 才支持 rLike
+        String sql3 = "with tmp as (select case when user_id rlike 'a' then 1 else 0 end as b -- 注释\n"
                 + "         , count(1) as part_pv\n"
                 + "         , max(order_amount) as part_max\n"
                 + "         , min(order_amount) as part_min\n"
                 + "    from hive_table\n"
-                + "    where p_date between '20210920' and '20210920'\n"
-                + "    group by test_hive_udaf(user_id, '20210920')";
+                + "    where p_date = '20210920'\n"
+                + "    group by user_id) \n"
+                + "\n"
+                + "select * from tmp";
 
-        tEnv.executeSql(sql2);
         tEnv.executeSql(sql3)
                 .print();
     }

@@ -1,4 +1,4 @@
-package flink.examples.sql._08.batch._04_test._01_batch_to_datastream;
+package flink.examples.sql._08.batch._05_test._01_batch_to_datastream;
 
 import java.util.concurrent.TimeUnit;
 
