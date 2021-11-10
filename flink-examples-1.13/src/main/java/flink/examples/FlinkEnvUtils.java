@@ -15,8 +15,13 @@ import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.environment.CheckpointConfig;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.EnvironmentSettings;
+import org.apache.flink.table.api.SqlDialect;
+import org.apache.flink.table.api.TableEnvironment;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
+import org.apache.flink.table.catalog.hive.HiveCatalog;
+import org.apache.flink.table.module.CoreModule;
 
+import flink.examples.sql._08.batch._03_hive_udf.HiveModuleV2;
 import lombok.Builder;
 import lombok.Data;
 
@@ -117,11 +122,142 @@ public class FlinkEnvUtils {
 
         StreamTableEnvironment tEnv = StreamTableEnvironment.create(env, settings);
 
-        return FlinkEnv
+        FlinkEnv flinkEnv = FlinkEnv
                 .builder()
                 .streamExecutionEnvironment(env)
                 .streamTableEnvironment(tEnv)
                 .build();
+
+        initHiveEnvInStreamMode(flinkEnv, parameterTool);
+
+        return flinkEnv;
+    }
+
+    /**
+     * hadoop 启动：/usr/local/Cellar/hadoop/3.2.1/sbin/start-all.sh
+     * http://localhost:9870/
+     * http://localhost:8088/cluster
+     *
+     * hive 启动：$HIVE_HOME/bin/hive --service metastore &
+     * hive cli：$HIVE_HOME/bin/hive
+     */
+    private static void initHiveEnvInStreamMode(FlinkEnv flinkEnv, ParameterTool parameterTool) {
+        String defaultDatabase = "default";
+        String hiveConfDir = "/usr/local/Cellar/hive/3.1.2/libexec/conf";
+
+        boolean enableHiveCatalog = parameterTool.getBoolean("enable.hive.catalog", false);
+
+        if (enableHiveCatalog) {
+            HiveCatalog hive = new HiveCatalog("default", defaultDatabase, hiveConfDir);
+            flinkEnv.streamTEnv().registerCatalog("default", hive);
+
+            // set the HiveCatalog as the current catalog of the session
+            flinkEnv.streamTEnv().useCatalog("default");
+        }
+
+        boolean enableHiveDialect = parameterTool.getBoolean("enable.hive.dialect", false);
+
+        if (enableHiveDialect) {
+            flinkEnv.streamTEnv().getConfig().setSqlDialect(SqlDialect.HIVE);
+        }
+
+        boolean enableHiveModuleV2 = parameterTool.getBoolean("enable.hive.module.v2", true);
+
+        if (enableHiveModuleV2) {
+            String version = "3.1.2";
+            flinkEnv.streamTEnv().unloadModule("core");
+
+            HiveModuleV2 hiveModuleV2 = new HiveModuleV2(version);
+
+            flinkEnv.streamTEnv().loadModule("default", hiveModuleV2);
+            flinkEnv.streamTEnv().loadModule("core", CoreModule.INSTANCE);
+
+            flinkEnv.setHiveModuleV2(hiveModuleV2);
+        }
+    }
+
+
+    public static FlinkEnv getBatchTableEnv(String[] args) throws IOException {
+
+        StreamExecutionEnvironment env =
+                StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(new Configuration());
+
+        ParameterTool parameterTool = ParameterTool.fromArgs(args);
+
+        env.setRestartStrategy(RestartStrategies.failureRateRestart(6, org.apache.flink.api.common.time.Time
+                .of(10L, TimeUnit.MINUTES), org.apache.flink.api.common.time.Time.of(5L, TimeUnit.SECONDS)));
+        env.getConfig().setGlobalJobParameters(parameterTool);
+        env.setParallelism(1);
+
+        // ck 设置
+        env.getCheckpointConfig().setFailOnCheckpointingErrors(false);
+        env.enableCheckpointing(30 * 1000L, CheckpointingMode.EXACTLY_ONCE);
+        env.getCheckpointConfig().setMinPauseBetweenCheckpoints(3L);
+        env.getCheckpointConfig()
+                .enableExternalizedCheckpoints(CheckpointConfig.ExternalizedCheckpointCleanup.RETAIN_ON_CANCELLATION);
+
+        EnvironmentSettings settings = EnvironmentSettings
+                .newInstance()
+                .useBlinkPlanner()
+                .inBatchMode()
+                .build();
+
+        TableEnvironment tEnv = TableEnvironment.create(settings);
+
+        FlinkEnv flinkEnv = FlinkEnv
+                .builder()
+                .streamExecutionEnvironment(env)
+                .tableEnvironment(tEnv)
+                .build();
+
+
+        initHiveEnvInBatchMode(flinkEnv, parameterTool);
+
+        return flinkEnv;
+    }
+
+
+    /**
+     * hadoop 启动：/usr/local/Cellar/hadoop/3.2.1/sbin/start-all.sh
+     * http://localhost:9870/
+     * http://localhost:8088/cluster
+     *
+     * hive 启动：$HIVE_HOME/bin/hive --service metastore &
+     * hive cli：$HIVE_HOME/bin/hive
+     */
+    private static void initHiveEnvInBatchMode(FlinkEnv flinkEnv, ParameterTool parameterTool) {
+        String defaultDatabase = "default";
+        String hiveConfDir = "/usr/local/Cellar/hive/3.1.2/libexec/conf";
+
+        boolean enableHiveCatalog = parameterTool.getBoolean("enable.hive.catalog", true);
+
+        if (enableHiveCatalog) {
+            HiveCatalog hive = new HiveCatalog("default", defaultDatabase, hiveConfDir);
+            flinkEnv.batchTEnv().registerCatalog("default", hive);
+
+            // set the HiveCatalog as the current catalog of the session
+            flinkEnv.batchTEnv().useCatalog("default");
+        }
+
+        boolean enableHiveDialect = parameterTool.getBoolean("enable.hive.dialect", true);
+
+        if (enableHiveDialect) {
+            flinkEnv.batchTEnv().getConfig().setSqlDialect(SqlDialect.HIVE);
+        }
+
+        boolean enableHiveModuleV2 = parameterTool.getBoolean("enable.hive.module.v2", true);
+
+        if (enableHiveModuleV2) {
+            String version = "3.1.2";
+            flinkEnv.batchTEnv().unloadModule("core");
+
+            HiveModuleV2 hiveModuleV2 = new HiveModuleV2(version);
+
+            flinkEnv.batchTEnv().loadModule("default", hiveModuleV2);
+            flinkEnv.batchTEnv().loadModule("core", CoreModule.INSTANCE);
+
+            flinkEnv.setHiveModuleV2(hiveModuleV2);
+        }
     }
 
     @Builder
@@ -129,13 +265,23 @@ public class FlinkEnvUtils {
     public static class FlinkEnv {
         private StreamExecutionEnvironment streamExecutionEnvironment;
         private StreamTableEnvironment streamTableEnvironment;
+        private TableEnvironment tableEnvironment;
+        private HiveModuleV2 hiveModuleV2;
 
-        public StreamTableEnvironment tableEnv() {
+        public StreamTableEnvironment streamTEnv() {
             return this.streamTableEnvironment;
+        }
+
+        public TableEnvironment batchTEnv() {
+            return this.tableEnvironment;
         }
 
         public StreamExecutionEnvironment env() {
             return this.streamExecutionEnvironment;
+        }
+
+        public HiveModuleV2 hiveModuleV2() {
+            return this.hiveModuleV2;
         }
     }
 
