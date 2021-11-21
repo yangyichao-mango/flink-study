@@ -1,45 +1,18 @@
 package flink.examples.sql._07.query._04_window_agg._02_cumulate_window;
 
-import java.util.concurrent.TimeUnit;
-
-import org.apache.flink.api.common.restartstrategy.RestartStrategies;
-import org.apache.flink.api.java.utils.ParameterTool;
-import org.apache.flink.configuration.Configuration;
-import org.apache.flink.streaming.api.CheckpointingMode;
-import org.apache.flink.streaming.api.environment.CheckpointConfig;
-import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.table.api.EnvironmentSettings;
-import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
+import flink.examples.FlinkEnvUtils;
+import flink.examples.FlinkEnvUtils.FlinkEnv;
 
 
 public class CumulateWindowTest {
 
     public static void main(String[] args) throws Exception {
 
-        StreamExecutionEnvironment env =
-                StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(new Configuration());
+        FlinkEnv flinkEnv = FlinkEnvUtils.getStreamTableEnv(args);
 
-        ParameterTool parameterTool = ParameterTool.fromArgs(args);
+        flinkEnv.env().setParallelism(1);
 
-        env.setRestartStrategy(RestartStrategies.failureRateRestart(6, org.apache.flink.api.common.time.Time
-                .of(10L, TimeUnit.MINUTES), org.apache.flink.api.common.time.Time.of(5L, TimeUnit.SECONDS)));
-        env.getConfig().setGlobalJobParameters(parameterTool);
-        env.setParallelism(10);
-
-        // ck 设置
-        env.getCheckpointConfig().setFailOnCheckpointingErrors(false);
-        env.enableCheckpointing(30 * 1000L, CheckpointingMode.EXACTLY_ONCE);
-        env.getCheckpointConfig().setMinPauseBetweenCheckpoints(3L);
-        env.getCheckpointConfig().enableExternalizedCheckpoints(CheckpointConfig.ExternalizedCheckpointCleanup.RETAIN_ON_CANCELLATION);
-
-        EnvironmentSettings settings = EnvironmentSettings
-                .newInstance()
-                .useBlinkPlanner()
-                .inStreamingMode().build();
-
-        StreamTableEnvironment tEnv = StreamTableEnvironment.create(env, settings);
-
-        String sourceSql = "CREATE TABLE source_table (\n"
+        String sql = "CREATE TABLE source_table (\n"
                 + "    dim STRING,\n"
                 + "    user_id BIGINT,\n"
                 + "    price BIGINT,\n"
@@ -47,15 +20,15 @@ public class CumulateWindowTest {
                 + "    WATERMARK FOR row_time AS row_time - INTERVAL '5' SECOND\n"
                 + ") WITH (\n"
                 + "  'connector' = 'datagen',\n"
-                + "  'rows-per-second' = '10000',\n"
+                + "  'rows-per-second' = '1',\n"
                 + "  'fields.dim.length' = '1',\n"
                 + "  'fields.user_id.min' = '1',\n"
                 + "  'fields.user_id.max' = '100000',\n"
                 + "  'fields.price.min' = '1',\n"
                 + "  'fields.price.max' = '100000'\n"
-                + ")";
-
-        String sinkSql = "CREATE TABLE sink_table (\n"
+                + ");\n"
+                + "\n"
+                + "CREATE TABLE sink_table (\n"
                 + "    dim STRING,\n"
                 + "    pv BIGINT,\n"
                 + "    sum_price BIGINT,\n"
@@ -65,9 +38,9 @@ public class CumulateWindowTest {
                 + "    window_end bigint\n"
                 + ") WITH (\n"
                 + "  'connector' = 'print'\n"
-                + ")";
-
-        String selectWhereSql = "insert into sink_table\n"
+                + ");\n"
+                + "\n"
+                + "insert into sink_table\n"
                 + "select dim,\n"
                 + "       sum(bucket_pv) as pv,\n"
                 + "       sum(bucket_sum_price) as sum_price,\n"
@@ -95,13 +68,47 @@ public class CumulateWindowTest {
                 + "              mod(user_id, 1024)\n"
                 + ")\n"
                 + "group by dim,\n"
-                + "         window_end";
+                + "         window_end;";
 
-        tEnv.getConfig().getConfiguration().setString("pipeline.name", "1.13.2 WINDOW TVF CUMULATE WINDOW 案例");
+        String exampleSql = "CREATE TABLE source_table (\n"
+                + "    id BIGINT,\n"
+                + "    money BIGINT,\n"
+                + "    row_time AS cast(CURRENT_TIMESTAMP as timestamp_LTZ(3)),\n"
+                + "    WATERMARK FOR row_time AS row_time - INTERVAL '5' SECOND\n"
+                + ") WITH (\n"
+                + "  'connector' = 'datagen',\n"
+                + "  'rows-per-second' = '1',\n"
+                + "  'fields.id.min' = '1',\n"
+                + "  'fields.id.max' = '100000',\n"
+                + "  'fields.money.min' = '1',\n"
+                + "  'fields.money.max' = '100000'\n"
+                + ");\n"
+                + "\n"
+                + "CREATE TABLE sink_table (\n"
+                + "    window_end bigint,\n"
+                + "    window_start timestamp(3),\n"
+                + "    sum_money BIGINT,\n"
+                + "    count_distinct_id BIGINT\n"
+                + ") WITH (\n"
+                + "  'connector' = 'print'\n"
+                + ");\n"
+                + "\n"
+                + "insert into sink_table\n"
+                + "SELECT UNIX_TIMESTAMP(CAST(window_end AS STRING)) * 1000 as window_end, \n"
+                + "      window_start, \n"
+                + "      sum(money) as sum_money,\n"
+                + "      count(distinct id) as count_distinct_id\n"
+                + "FROM TABLE(CUMULATE(\n"
+                + "         TABLE source_table\n"
+                + "         , DESCRIPTOR(row_time)\n"
+                + "         , INTERVAL '60' SECOND\n"
+                + "         , INTERVAL '1' DAY))\n"
+                + "GROUP BY window_start, \n"
+                + "        window_end";
 
-        tEnv.executeSql(sourceSql);
-        tEnv.executeSql(sinkSql);
-        tEnv.executeSql(selectWhereSql);
+        for (String innerSql : exampleSql.split(";")) {
+            flinkEnv.streamTEnv().executeSql(innerSql);
+        }
     }
 
 }

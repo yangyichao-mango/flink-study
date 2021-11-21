@@ -16,7 +16,7 @@ public class HiveUDF_sql_registry_create_temporary_function_with_hive_catalog_Te
 
     public static void main(String[] args) throws Exception {
 
-        FlinkEnv flinkEnv = FlinkEnvUtils.getStreamTableEnv(new String[]{"--enable.hive.catalog", "true"});
+        FlinkEnv flinkEnv = FlinkEnvUtils.getStreamTableEnv(new String[]{"--enable.hive.catalog", "true", "--enable.hive.dialect", "true"});
 
         // TODO stream sql 执行 hive udf 创建不报错，执行使用报错
         //  Caused by: java.lang.ClassCastException: flink.examples.sql._08.batch._03_hive_udf._04_GenericUDF.TestGenericUDF cannot be cast to org.apache.flink.table.functions.UserDefinedFunction
