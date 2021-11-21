@@ -44,13 +44,13 @@
 9. [公众号文章：flink sql 知其所以然（七）：不会连最适合 flink sql 的 ETL 和 group agg 场景都没见过吧？](https://github.com/yangyichao-mango/flink-study/tree/main/flink-examples-1.13/src/main/java/flink/examples/sql/_07/query)
 10. [公众号文章：flink sql 知其所以然（八）：flink sql tumble window 的奇妙解析之路](https://mp.weixin.qq.com/s/IRmt8dWmxAmbBh696akHdw)，[源码](https://github.com/yangyichao-mango/flink-study/tree/main/flink-examples-1.13/src/main/java/flink/examples/sql/_07/query/_04_window)
 11. [公众号文章：flink sql 知其所以然（九）：window tvf tumble window 的奇思妙解](https://mp.weixin.qq.com/s/QVuu5_N4lHo5gXlt1tdncw)，[源码](https://github.com/yangyichao-mango/flink-study/tree/main/flink-examples-1.13/src/main/java/flink/examples/sql/_07/query/_04_window_agg/_01_tumble_window)
+12. [公众号文章：flink sql 知其所以然（十）：大家都用 cumulate window 啦](https://mp.weixin.qq.com/s/IqAzjrQmcGmnxvHm1FAV5g)，[源码](https://github.com/yangyichao-mango/flink-study/blob/main/flink-examples-1.13/src/main/java/flink/examples/sql/_07/query/_04_window_agg/_02_cumulate_window/CumulateWindowTest.java)
 
 ## 2.2.flink 实战
 
 1. [公众号文章：揭秘字节跳动埋点数据实时动态处理引擎（附源码）](https://mp.weixin.qq.com/s/PoK0XOA9OHIDJezb1fLOMw)，[源码](https://github.com/yangyichao-mango/flink-study/tree/main/flink-examples-1.13/src/main/java/flink/examples/datastream/_01/bytedance/split)
 2. [公众号文章：踩坑记| flink state 序列化 java enum 竟然岔劈了](https://mp.weixin.qq.com/s/YElwTL-wzo2UVVIsIH_9YA)，[源码](https://github.com/yangyichao-mango/flink-study/tree/main/flink-examples-1.13/src/main/java/flink/examples/datastream/_03/enums_state)
 3. [公众号文章：flink idea 本地调试状态恢复](https://mp.weixin.qq.com/s/rLeKY_49q8rR9C_RmlTmhg)，[源码](https://github.com/yangyichao-mango/flink-study/blob/main/flink-examples-1.13/src/main/java/flink/examples/runtime/_04/statebackend/CancelAndRestoreWithCheckpointTest.java)
-
 
 # 3.联系我
 
