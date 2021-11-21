@@ -1,6 +1,7 @@
 package flink.examples;
 
 import java.io.IOException;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.flink.api.common.restartstrategy.RestartStrategies;
@@ -128,7 +129,7 @@ public class FlinkEnvUtils {
                 .streamTableEnvironment(tEnv)
                 .build();
 
-        initHiveEnvInStreamMode(flinkEnv, parameterTool);
+        initHiveEnv(flinkEnv, parameterTool);
 
         return flinkEnv;
     }
@@ -141,7 +142,7 @@ public class FlinkEnvUtils {
      * hive 启动：$HIVE_HOME/bin/hive --service metastore &
      * hive cli：$HIVE_HOME/bin/hive
      */
-    private static void initHiveEnvInStreamMode(FlinkEnv flinkEnv, ParameterTool parameterTool) {
+    private static void initHiveEnv(FlinkEnv flinkEnv, ParameterTool parameterTool) {
         String defaultDatabase = "default";
         String hiveConfDir = "/usr/local/Cellar/hive/3.1.2/libexec/conf";
 
@@ -149,28 +150,57 @@ public class FlinkEnvUtils {
 
         if (enableHiveCatalog) {
             HiveCatalog hive = new HiveCatalog("default", defaultDatabase, hiveConfDir);
-            flinkEnv.streamTEnv().registerCatalog("default", hive);
+
+            Optional.ofNullable(flinkEnv.streamTEnv())
+                    .ifPresent(s -> s.registerCatalog("default", hive));
+
+            Optional.ofNullable(flinkEnv.batchTEnv())
+                    .ifPresent(s -> s.registerCatalog("default", hive));
 
             // set the HiveCatalog as the current catalog of the session
-            flinkEnv.streamTEnv().useCatalog("default");
+
+            Optional.ofNullable(flinkEnv.streamTEnv())
+                    .ifPresent(s -> s.useCatalog("default"));
+
+            Optional.ofNullable(flinkEnv.batchTEnv())
+                    .ifPresent(s -> s.useCatalog("default"));
         }
 
         boolean enableHiveDialect = parameterTool.getBoolean("enable.hive.dialect", false);
 
         if (enableHiveDialect) {
-            flinkEnv.streamTEnv().getConfig().setSqlDialect(SqlDialect.HIVE);
+
+            Optional.ofNullable(flinkEnv.streamTEnv())
+                    .ifPresent(s -> s.getConfig().setSqlDialect(SqlDialect.HIVE));
+
+            Optional.ofNullable(flinkEnv.batchTEnv())
+                    .ifPresent(s -> s.getConfig().setSqlDialect(SqlDialect.HIVE));
         }
 
         boolean enableHiveModuleV2 = parameterTool.getBoolean("enable.hive.module.v2", true);
 
         if (enableHiveModuleV2) {
             String version = "3.1.2";
-            flinkEnv.streamTEnv().unloadModule("core");
+
+            Optional.ofNullable(flinkEnv.streamTEnv())
+                    .ifPresent(s -> s.unloadModule("core"));
+
+            Optional.ofNullable(flinkEnv.batchTEnv())
+                    .ifPresent(s -> s.unloadModule("core"));
 
             HiveModuleV2 hiveModuleV2 = new HiveModuleV2(version);
 
-            flinkEnv.streamTEnv().loadModule("default", hiveModuleV2);
-            flinkEnv.streamTEnv().loadModule("core", CoreModule.INSTANCE);
+            Optional.ofNullable(flinkEnv.streamTEnv())
+                    .ifPresent(s -> {
+                        s.loadModule("default", hiveModuleV2);
+                        s.loadModule("core", CoreModule.INSTANCE);
+                    });
+
+            Optional.ofNullable(flinkEnv.batchTEnv())
+                    .ifPresent(s -> {
+                        s.loadModule("default", hiveModuleV2);
+                        s.loadModule("core", CoreModule.INSTANCE);
+                    });
 
             flinkEnv.setHiveModuleV2(hiveModuleV2);
         }
@@ -211,53 +241,9 @@ public class FlinkEnvUtils {
                 .build();
 
 
-        initHiveEnvInBatchMode(flinkEnv, parameterTool);
+        initHiveEnv(flinkEnv, parameterTool);
 
         return flinkEnv;
-    }
-
-
-    /**
-     * hadoop 启动：/usr/local/Cellar/hadoop/3.2.1/sbin/start-all.sh
-     * http://localhost:9870/
-     * http://localhost:8088/cluster
-     *
-     * hive 启动：$HIVE_HOME/bin/hive --service metastore &
-     * hive cli：$HIVE_HOME/bin/hive
-     */
-    private static void initHiveEnvInBatchMode(FlinkEnv flinkEnv, ParameterTool parameterTool) {
-        String defaultDatabase = "default";
-        String hiveConfDir = "/usr/local/Cellar/hive/3.1.2/libexec/conf";
-
-        boolean enableHiveCatalog = parameterTool.getBoolean("enable.hive.catalog", true);
-
-        if (enableHiveCatalog) {
-            HiveCatalog hive = new HiveCatalog("default", defaultDatabase, hiveConfDir);
-            flinkEnv.batchTEnv().registerCatalog("default", hive);
-
-            // set the HiveCatalog as the current catalog of the session
-            flinkEnv.batchTEnv().useCatalog("default");
-        }
-
-        boolean enableHiveDialect = parameterTool.getBoolean("enable.hive.dialect", true);
-
-        if (enableHiveDialect) {
-            flinkEnv.batchTEnv().getConfig().setSqlDialect(SqlDialect.HIVE);
-        }
-
-        boolean enableHiveModuleV2 = parameterTool.getBoolean("enable.hive.module.v2", true);
-
-        if (enableHiveModuleV2) {
-            String version = "3.1.2";
-            flinkEnv.batchTEnv().unloadModule("core");
-
-            HiveModuleV2 hiveModuleV2 = new HiveModuleV2(version);
-
-            flinkEnv.batchTEnv().loadModule("default", hiveModuleV2);
-            flinkEnv.batchTEnv().loadModule("core", CoreModule.INSTANCE);
-
-            flinkEnv.setHiveModuleV2(hiveModuleV2);
-        }
     }
 
     @Builder
