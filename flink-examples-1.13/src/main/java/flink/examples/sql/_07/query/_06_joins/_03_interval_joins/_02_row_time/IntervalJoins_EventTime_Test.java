@@ -1,4 +1,4 @@
-package flink.examples.sql._07.query._06_joins._03_interval_joins;
+package flink.examples.sql._07.query._06_joins._03_interval_joins._02_row_time;
 
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
@@ -90,10 +90,10 @@ public class IntervalJoins_EventTime_Test {
                 + "AND s.row_time BETWEEN d.row_time - INTERVAL '4' HOUR AND d.row_time;";
 
         /**
-         * join 算子：{@link org.apache.flink.streaming.api.operators.co.KeyedCoProcessOperator}
-         *                 -> {@link org.apache.flink.table.runtime.operators.join.interval.ProcTimeIntervalJoin}
+         * join 算子：{@link org.apache.flink.table.runtime.operators.join.KeyedCoProcessOperatorWithWatermarkDelay}
+         *                 -> {@link org.apache.flink.table.runtime.operators.join.interval.RowTimeIntervalJoin}
          *                       -> {@link org.apache.flink.table.runtime.operators.join.interval.IntervalJoinFunction}
-          */
+         */
 
         Arrays.stream(sql.split(";"))
                 .forEach(tEnv::executeSql);

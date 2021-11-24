@@ -1,4 +1,4 @@
-package flink.examples.sql._07.query._06_joins._03_interval_joins._01_outer_join;
+package flink.examples.sql._07.query._06_joins._03_interval_joins._02_row_time;
 
 import java.sql.Timestamp;
 import java.util.Arrays;
