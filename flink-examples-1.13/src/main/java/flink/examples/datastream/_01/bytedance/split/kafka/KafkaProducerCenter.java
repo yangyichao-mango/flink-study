@@ -71,6 +71,7 @@ public class KafkaProducerCenter {
         this.producerConcurrentMap.forEach(new BiConsumer<String, Producer<String, String>>() {
             @Override
             public void accept(String s, Producer<String, String> stringStringProducer) {
+                stringStringProducer.flush();
                 stringStringProducer.close();
             }
         });
