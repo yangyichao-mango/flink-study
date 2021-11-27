@@ -1,4 +1,4 @@
-package flink.examples.sql._07.query._06_joins._07_table_function._01_inner_join;
+package flink.examples.sql._07.query._06_joins._06_table_function._01_inner_join;
 
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
@@ -14,7 +14,7 @@ import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 import org.apache.flink.table.functions.TableFunction;
 
 
-public class TableFunctionInnerJoin_Test {
+public class TableFunctionInnerJoin_WithEmptyTableFunction_Test {
 
     public static void main(String[] args) throws Exception {
 
@@ -45,7 +45,7 @@ public class TableFunctionInnerJoin_Test {
         tEnv.getConfig().getConfiguration().setString("pipeline.name", "1.13.2 Interval Outer Join 事件时间案例");
 
         String sql = "CREATE FUNCTION user_profile_table_func AS 'flink.examples.sql._07.query._06_joins._07_table_function"
-                + "._01_inner_join.TableFunctionInnerJoin_Test$UserProfileTableFunction';\n"
+                + "._01_inner_join.TableFunctionInnerJoin_WithEmptyTableFunction_Test$UserProfile_EmptyTableFunction';\n"
                 + "\n"
                 + "CREATE TABLE source_table (\n"
                 + "    user_id BIGINT NOT NULL,\n"
@@ -87,14 +87,9 @@ public class TableFunctionInnerJoin_Test {
                 .forEach(tEnv::executeSql);
     }
 
-    public static class UserProfileTableFunction extends TableFunction<Integer> {
+    public static class UserProfile_EmptyTableFunction extends TableFunction<Integer> {
 
         public void eval(long userId) {
-            if (userId <= 5) {
-                collect(18);
-            } else {
-                collect(23);
-            }
         }
 
     }

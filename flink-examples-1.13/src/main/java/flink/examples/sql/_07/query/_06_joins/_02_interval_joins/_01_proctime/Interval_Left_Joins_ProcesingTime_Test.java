@@ -1,4 +1,4 @@
-package flink.examples.sql._07.query._06_joins._03_interval_joins._01_proctime;
+package flink.examples.sql._07.query._06_joins._02_interval_joins._01_proctime;
 
 import java.util.Arrays;
 
@@ -6,7 +6,7 @@ import flink.examples.FlinkEnvUtils;
 import flink.examples.FlinkEnvUtils.FlinkEnv;
 
 
-public class Interval_Inner_Joins_ProcesingTime_Test {
+public class Interval_Left_Joins_ProcesingTime_Test {
 
     public static void main(String[] args) throws Exception {
 
@@ -97,7 +97,7 @@ public class Interval_Inner_Joins_ProcesingTime_Test {
                 + "    show_log_table.show_params as s_params,\n"
                 + "    click_log_table.log_id as c_id,\n"
                 + "    click_log_table.click_params as c_params\n"
-                + "FROM show_log_table INNER JOIN click_log_table ON show_log_table.log_id = click_log_table.log_id\n"
+                + "FROM show_log_table LEFT JOIN click_log_table ON show_log_table.log_id = click_log_table.log_id\n"
                 + "AND show_log_table.proctime BETWEEN click_log_table.proctime - INTERVAL '4' HOUR AND click_log_table.proctime;";
 
         /**
