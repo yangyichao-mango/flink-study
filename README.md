@@ -46,7 +46,7 @@
 11. [公众号文章：flink sql 知其所以然（九）：window tvf tumble window 的奇思妙解](https://mp.weixin.qq.com/s/QVuu5_N4lHo5gXlt1tdncw)，[源码](https://github.com/yangyichao-mango/flink-study/tree/main/flink-examples-1.13/src/main/java/flink/examples/sql/_07/query/_04_window_agg/_01_tumble_window)
 12. [公众号文章：flink sql 知其所以然（十）：大家都用 cumulate window 啦](https://mp.weixin.qq.com/s/IqAzjrQmcGmnxvHm1FAV5g)，[源码](https://github.com/yangyichao-mango/flink-study/blob/main/flink-examples-1.13/src/main/java/flink/examples/sql/_07/query/_04_window_agg/_02_cumulate_window/CumulateWindowTest.java)
 13. [公众号文章：flink sql 知其所以然（十一）：去重不仅仅有 count distinct 还有强大的 deduplication](https://mp.weixin.qq.com/s/VL6egD76B4J7IcpHShTq7Q)，[源码](https://github.com/yangyichao-mango/flink-study/tree/main/flink-examples-1.13/src/main/java/flink/examples/sql/_07/query/_05_over/_01_row_number)
-14. [公众号文章：flink sql 知其所以然（十二）：流 join 很难嘛？？？（上）](https://mp.weixin.qq.com/s/Z8QfKfhrX5KEnR-s7gRtsA)，[源码](https://github.com/yangyichao-mango/flink-study/tree/main/flink-examples-1.13/src/main/java/flink/examples/sql/_07/query/_06_joins)
+14. [公众号文章：flink sql 知其所以然（十二）：流 join 很难嘛？？？（上）](https://mp.weixin.qq.com/s/Z8QfKfhrX5KEnR-s7gRtsA)，[源码](https://github.com/yangyichao-mango/flink-study/tree/main/flink-examples-1.13/src/main/java/flink/examples/sql/_07/query/_06_joins/_01_regular_joins)
 15. [公众号文章：flink sql 知其所以然（十三）：流 join 很难嘛？？？（下）]()，[源码](https://github.com/yangyichao-mango/flink-study/tree/main/flink-examples-1.13/src/main/java/flink/examples/sql/_07/query/_06_joins/_02_interval_joins)
 
 ## 2.2.flink 实战
