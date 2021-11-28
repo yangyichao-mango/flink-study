@@ -5,6 +5,8 @@ import static flink.examples.sql._03.source_sink.table.redis.options.RedisOption
 import static flink.examples.sql._03.source_sink.table.redis.options.RedisOptions.LOOKUP_CACHE_TTL;
 import static flink.examples.sql._03.source_sink.table.redis.options.RedisOptions.LOOKUP_MAX_RETRIES;
 import static flink.examples.sql._03.source_sink.table.redis.options.RedisOptions.PORT;
+import static flink.examples.sql._03.source_sink.table.redis.options.RedisWriteOptions.BATCH_SIZE;
+import static flink.examples.sql._03.source_sink.table.redis.options.RedisWriteOptions.IS_BATCH_MODE;
 import static flink.examples.sql._03.source_sink.table.redis.options.RedisWriteOptions.WRITE_MODE;
 
 import java.util.HashSet;
@@ -12,6 +14,7 @@ import java.util.Set;
 
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.configuration.ConfigOption;
+import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.ReadableConfig;
 import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.connector.format.DecodingFormat;
@@ -53,6 +56,8 @@ public class RedisDynamicTableFactory implements DynamicTableSourceFactory, Dyna
         options.add(LOOKUP_CACHE_TTL);
         options.add(LOOKUP_MAX_RETRIES);
         options.add(WRITE_MODE);
+        options.add(IS_BATCH_MODE);
+        options.add(BATCH_SIZE);
         return options;
     }
 
@@ -78,10 +83,15 @@ public class RedisDynamicTableFactory implements DynamicTableSourceFactory, Dyna
 
         TableSchema schema = context.getCatalogTable().getSchema();
 
+        Configuration c = (Configuration) context.getConfiguration();
+
+        boolean isDimBatchMode = c.getBoolean("is.dim.batch.mode", false);
+
         return new RedisDynamicTableSource(
                 schema.toPhysicalRowDataType()
                 , decodingFormat
-                , redisLookupOptions);
+                , redisLookupOptions
+                , isDimBatchMode);
     }
 
     @Override

@@ -21,6 +21,10 @@ public class RedisWriteOptions {
 
     private final String writeMode;
 
+    private final boolean isBatchMode;
+
+    private final int batchSize;
+
     public static final ConfigOption<Integer> WRITE_TTL = ConfigOptions
             .key("write.ttl")
             .intType()
@@ -33,11 +37,25 @@ public class RedisWriteOptions {
             .defaultValue("string")
             .withDescription("mode for insert to redis");
 
-    public RedisWriteOptions(int writeTtl, String hostname, int port, String writeMode) {
+    public static final ConfigOption<Boolean> IS_BATCH_MODE = ConfigOptions
+            .key("is.batch.mode")
+            .booleanType()
+            .defaultValue(false)
+            .withDescription("if is.batch.mode is ture, means it can cache records and hit redis using jedis pipeline.");
+
+    public static final ConfigOption<Integer> BATCH_SIZE = ConfigOptions
+            .key("batch.size")
+            .intType()
+            .defaultValue(30)
+            .withDescription("jedis pipeline batch size.");
+
+    public RedisWriteOptions(int writeTtl, String hostname, int port, String writeMode, boolean isBatchMode, int batchSize) {
         this.writeTtl = writeTtl;
         this.hostname = hostname;
         this.port = port;
         this.writeMode = writeMode;
+        this.isBatchMode = isBatchMode;
+        this.batchSize = batchSize;
     }
 
     public int getWriteTtl() {
@@ -50,6 +68,14 @@ public class RedisWriteOptions {
 
     public String getWriteMode() {
         return writeMode;
+    }
+
+    public boolean isBatchMode() {
+        return isBatchMode;
+    }
+
+    public int getBatchSize() {
+        return batchSize;
     }
 
     /** Builder of {@link RedisWriteOptions}. */
@@ -67,6 +93,10 @@ public class RedisWriteOptions {
         protected int port = 6379;
 
         private String writeMode = "string";
+
+        private boolean isBatchMode = false;
+
+        private int batchSize = 30;
 
         /**
          * optional, lookup cache max size, over this value, the old data will be eliminated.
@@ -90,7 +120,7 @@ public class RedisWriteOptions {
         }
 
         public RedisWriteOptions build() {
-            return new RedisWriteOptions(writeTtl, hostname, port, writeMode);
+            return new RedisWriteOptions(writeTtl, hostname, port, writeMode, isBatchMode, batchSize);
         }
     }
 }

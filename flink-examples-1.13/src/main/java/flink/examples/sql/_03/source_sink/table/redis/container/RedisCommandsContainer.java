@@ -18,6 +18,7 @@ package flink.examples.sql._03.source_sink.table.redis.container;
 
 import java.io.Closeable;
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * The container for all available Redis commands.
@@ -27,6 +28,8 @@ public interface RedisCommandsContainer extends Closeable, Serializable {
     void open() throws Exception;
 
     byte[] get(byte[] key);
+
+    List<Object> multiGet(List<byte[]> key);
 
     byte[] hget(byte[] key, byte[] hashField);
 

@@ -2,6 +2,7 @@ package flink.examples.sql._03.source_sink.table.redis.container;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisSentinelPool;
+import redis.clients.jedis.Pipeline;
 
 
 public class RedisContainer implements RedisCommandsContainer, Closeable {
@@ -56,6 +58,25 @@ public class RedisContainer implements RedisCommandsContainer, Closeable {
     @Override
     public void open() throws Exception {
         getInstance().echo("Test");
+    }
+
+    @Override
+    public List<Object> multiGet(List<byte[]> key) {
+        Jedis jedis = null;
+        try {
+            jedis = getInstance();
+            Pipeline pipeline = jedis.pipelined();
+            key.forEach(pipeline::get);
+            return pipeline.syncAndReturnAll();
+        } catch (Exception e) {
+            if (LOG.isErrorEnabled()) {
+                LOG.error("Cannot send Redis message with command GET to key {} error message {}",
+                        key, e.getMessage());
+            }
+            throw e;
+        } finally {
+            releaseInstance(jedis);
+        }
     }
 
     @Override

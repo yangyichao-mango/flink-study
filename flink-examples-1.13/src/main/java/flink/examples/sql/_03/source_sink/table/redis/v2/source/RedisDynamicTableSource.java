@@ -34,10 +34,13 @@ public class RedisDynamicTableSource implements LookupTableSource {
 
     protected final RedisLookupOptions redisLookupOptions;
 
+    private final boolean isDimBatchMode;
+
     public RedisDynamicTableSource(
             DataType physicalDataType
             , DecodingFormat<DeserializationSchema<RowData>> decodingFormat
-            , RedisLookupOptions redisLookupOptions) {
+            , RedisLookupOptions redisLookupOptions
+            , boolean isDimBatchMode) {
 
         // Format attributes
         this.physicalDataType =
@@ -45,6 +48,8 @@ public class RedisDynamicTableSource implements LookupTableSource {
                         physicalDataType, "Physical data type must not be null.");
         this.decodingFormat = decodingFormat;
         this.redisLookupOptions = redisLookupOptions;
+
+        this.isDimBatchMode = isDimBatchMode;
     }
 
 
@@ -59,10 +64,21 @@ public class RedisDynamicTableSource implements LookupTableSource {
         LookupRedisMapper lookupRedisMapper = new LookupRedisMapper(
                 this.createDeserialization(context, this.decodingFormat, createValueFormatProjection(this.physicalDataType)));
 
-        return TableFunctionProvider.of(new RedisRowDataLookupFunction(
-                flinkJedisConfigBase
-                , lookupRedisMapper
-                , this.redisLookupOptions));
+        if (isDimBatchMode) {
+            return TableFunctionProvider.of(new RedisRowDataBatchLookupFunction(
+                    flinkJedisConfigBase
+                    , lookupRedisMapper
+                    , this.redisLookupOptions));
+//            return TableFunctionProvider.of(new RedisRowDataLookupFunction(
+//                    flinkJedisConfigBase
+//                    , lookupRedisMapper
+//                    , this.redisLookupOptions));
+        } else {
+            return TableFunctionProvider.of(new RedisRowDataLookupFunction(
+                    flinkJedisConfigBase
+                    , lookupRedisMapper
+                    , this.redisLookupOptions));
+        }
     }
 
     private @Nullable DeserializationSchema<RowData> createDeserialization(

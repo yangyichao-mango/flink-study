@@ -78,7 +78,7 @@ public class FlinkEnvUtils {
         env.getCheckpointConfig().setCheckpointTimeout(TimeUnit.MINUTES.toMillis(3));
         // ck 设置
         env.getCheckpointConfig().setFailOnCheckpointingErrors(false);
-        env.enableCheckpointing(10 * 1000L, CheckpointingMode.EXACTLY_ONCE);
+        env.enableCheckpointing(180 * 1000L, CheckpointingMode.EXACTLY_ONCE);
         env.getCheckpointConfig().setMinPauseBetweenCheckpoints(3L);
 
         Configuration configuration = new Configuration();

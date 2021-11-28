@@ -19,8 +19,10 @@
 package flink.examples.sql._03.source_sink.table.redis.v2.source;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.metrics.Gauge;
@@ -28,6 +30,7 @@ import org.apache.flink.shaded.guava18.com.google.common.cache.Cache;
 import org.apache.flink.shaded.guava18.com.google.common.cache.CacheBuilder;
 import org.apache.flink.streaming.connectors.redis.common.config.FlinkJedisConfigBase;
 import org.apache.flink.table.data.RowData;
+import org.apache.flink.table.data.binary.BinaryStringData;
 import org.apache.flink.table.functions.FunctionContext;
 import org.apache.flink.table.functions.TableFunction;
 import org.slf4j.Logger;
@@ -46,10 +49,10 @@ import flink.examples.sql._03.source_sink.table.redis.options.RedisLookupOptions
  * RowData}.
  */
 @Internal
-public class RedisRowDataLookupFunction extends TableFunction<RowData> {
+public class RedisRowDataBatchLookupFunction extends TableFunction<List<RowData>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(
-            RedisRowDataLookupFunction.class);
+            RedisRowDataBatchLookupFunction.class);
     private static final long serialVersionUID = 1L;
 
     private String additionalKey;
@@ -75,7 +78,9 @@ public class RedisRowDataLookupFunction extends TableFunction<RowData> {
 
     private transient Consumer<Object[]> evaler;
 
-    public RedisRowDataLookupFunction(
+    private static final byte[] DEFAULT_JSON_BYTES = "{}".getBytes();
+
+    public RedisRowDataBatchLookupFunction(
             FlinkJedisConfigBase flinkJedisConfigBase
             , LookupRedisMapper lookupRedisMapper,
             RedisLookupOptions redisLookupOptions) {
@@ -112,7 +117,7 @@ public class RedisRowDataLookupFunction extends TableFunction<RowData> {
                 this.evaler.accept(objects);
                 break;
             } catch (Exception e) {
-                LOG.error(String.format("HBase lookup error, retry times = %d", retry), e);
+                LOG.error(String.format("Redis lookup error, retry times = %d", retry), e);
                 if (retry >= maxRetryTimes) {
                     throw new RuntimeException("Execution of Redis lookup failed.", e);
                 }
@@ -150,59 +155,103 @@ public class RedisRowDataLookupFunction extends TableFunction<RowData> {
             context.getMetricGroup()
                     .gauge("lookupCacheHitRate", (Gauge<Double>) () -> cache.stats().hitRate());
 
-
             this.evaler = in -> {
-                RowData cacheRowData = cache.getIfPresent(in);
-                if (cacheRowData != null) {
-//                    collect(cacheRowData);
-                } else {
-                    // fetch result
-                    byte[] key = lookupRedisMapper.serialize(in);
 
-                    byte[] value = null;
+                List<Object> inner = (List<Object>) in[0];
 
-                    switch (redisCommand) {
-                        case GET:
-                            value = this.redisCommandsContainer.get(key);
-                            break;
-                        case HGET:
-                            value = this.redisCommandsContainer.hget(key, this.additionalKey.getBytes());
-                            break;
-                        default:
-                            throw new IllegalArgumentException("Cannot process such data type: " + redisCommand);
-                    }
+                List<byte[]> keys = inner
+                        .stream()
+                        .map(o -> {
+                            if (o instanceof BinaryStringData) {
+                                return ((BinaryStringData) o).getJavaObject().getBytes();
+                            } else {
+                                return String.valueOf(o).getBytes();
+                            }
+                        })
+                        .collect(Collectors.toList());
 
-                    RowData rowData = this.lookupRedisMapper.deserialize(value);
-
-                    collect(rowData);
-
-                    if (null != rowData) {
-                        cache.put(key, rowData);
-                    }
-                }
-            };
-
-        } else {
-            this.evaler = in -> {
-                // fetch result
-                byte[] key = lookupRedisMapper.serialize(in);
-
-                byte[] value = null;
+                List<Object> value = null;
 
                 switch (redisCommand) {
                     case GET:
-                        value = this.redisCommandsContainer.get(key);
-                        break;
-                    case HGET:
-                        value = this.redisCommandsContainer.hget(key, this.additionalKey.getBytes());
+                        value = this.redisCommandsContainer.multiGet(keys);
                         break;
                     default:
                         throw new IllegalArgumentException("Cannot process such data type: " + redisCommand);
                 }
 
-                RowData rowData = this.lookupRedisMapper.deserialize(value);
+                List<RowData> result = value
+                        .stream()
+                        .map(o -> {
+                            if (null == o) {
+                                return this.lookupRedisMapper.deserialize(DEFAULT_JSON_BYTES);
+                            } else {
+                                return this.lookupRedisMapper.deserialize((byte[]) o);
+                            }
+                        })
+                        .collect(Collectors.toList());
 
-                collect(rowData);
+                collect(result);
+            };
+
+            //            this.evaler = in -> {
+            //                RowData cacheRowData = cache.getIfPresent(in);
+            //                if (cacheRowData != null) {
+            ////                    collect(cacheRowData);
+            //                } else {
+            //                    // fetch result
+            //                    byte[] key = lookupRedisMapper.serialize(in);
+            //
+            //                    byte[] value = null;
+            //
+            //                    switch (redisCommand) {
+            //                        case GET:
+            //                            value = this.redisCommandsContainer.get(key);
+            //                            break;
+            //                        case HGET:
+            //                            value = this.redisCommandsContainer.hget(key, this.additionalKey.getBytes());
+            //                            break;
+            //                        default:
+            //                            throw new IllegalArgumentException("Cannot process such data type: " +
+            //                            redisCommand);
+            //                    }
+            //
+            //                    RowData rowData = this.lookupRedisMapper.deserialize(value);
+            //
+            //                    collect(rowData);
+            //
+            //                    if (null != rowData) {
+            //                        cache.put(key, rowData);
+            //                    }
+            //                }
+            //            };
+
+        } else {
+            this.evaler = in -> {
+
+                List<Object[]> inner = (List<Object[]>) in[0];
+
+                List<byte[]> keys = inner
+                        .stream()
+                        .map(lookupRedisMapper::serialize)
+                        .collect(Collectors.toList());
+
+                List<Object> value = null;
+
+                switch (redisCommand) {
+                    case GET:
+                        value = this.redisCommandsContainer.multiGet(keys);
+                        break;
+                    default:
+                        throw new IllegalArgumentException("Cannot process such data type: " + redisCommand);
+                }
+
+                List<RowData> result = value
+                        .stream()
+                        .map(o -> this.lookupRedisMapper.deserialize((byte[]) o))
+                        .collect(Collectors.toList());
+
+                collect(result);
             };
         }
 

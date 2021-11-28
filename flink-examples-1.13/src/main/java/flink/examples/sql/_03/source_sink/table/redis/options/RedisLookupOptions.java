@@ -23,13 +23,22 @@ public class RedisLookupOptions implements Serializable {
     private final int maxRetryTimes;
     private final boolean lookupAsync;
 
+    private final boolean isBatchMode;
+
+    private final int batchSize;
+
+    private final int batchMinTriggerDelayMs;
+
     public RedisLookupOptions(
             long cacheMaxSize
             , long cacheExpireMs
             , int maxRetryTimes
             , boolean lookupAsync
             , String hostname
-            , int port) {
+            , int port
+            , boolean isBatchMode
+            , int batchSize
+            , int batchMinTriggerDelayMs) {
         this.cacheMaxSize = cacheMaxSize;
         this.cacheExpireMs = cacheExpireMs;
         this.maxRetryTimes = maxRetryTimes;
@@ -37,6 +46,9 @@ public class RedisLookupOptions implements Serializable {
 
         this.hostname = hostname;
         this.port = port;
+        this.isBatchMode = isBatchMode;
+        this.batchSize = batchSize;
+        this.batchMinTriggerDelayMs = batchMinTriggerDelayMs;
     }
 
     public long getCacheMaxSize() {
@@ -59,12 +71,46 @@ public class RedisLookupOptions implements Serializable {
         return new Builder();
     }
 
+    public boolean isBatchMode() {
+        return isBatchMode;
+    }
+
+    public int getBatchSize() {
+        return batchSize;
+    }
+
+    public int getBatchMinTriggerDelayMs() {
+        return batchMinTriggerDelayMs;
+    }
+
     /** Builder of {@link RedisLookupOptions}. */
     public static class Builder {
         private long cacheMaxSize = -1L;
         private long cacheExpireMs = 0L;
         private int maxRetryTimes = DEFAULT_MAX_RETRY_TIMES;
         private boolean lookupAsync = false;
+
+        private boolean isBatchMode = false;
+
+
+        public Builder setIsBatchMode(boolean isBatchMode) {
+            this.isBatchMode = isBatchMode;
+            return this;
+        }
+
+        private int batchSize = 30;
+
+        public Builder setBatchSize(int batchSize) {
+            this.batchSize = batchSize;
+            return this;
+        }
+
+        private int batchMinTriggerDelayMs = 1000;
+
+        public Builder setBatchMinTriggerDelayMs(int batchMinTriggerDelayMs) {
+            this.batchMinTriggerDelayMs = batchMinTriggerDelayMs;
+            return this;
+        }
 
         /** optional, lookup cache max size, over this value, the old data will be eliminated. */
         public Builder setCacheMaxSize(long cacheMaxSize) {
@@ -111,7 +157,16 @@ public class RedisLookupOptions implements Serializable {
         }
 
         public RedisLookupOptions build() {
-            return new RedisLookupOptions(cacheMaxSize, cacheExpireMs, maxRetryTimes, lookupAsync, hostname, port);
+            return new RedisLookupOptions(
+                    cacheMaxSize
+                    , cacheExpireMs
+                    , maxRetryTimes
+                    , lookupAsync
+                    , hostname
+                    , port
+                    , isBatchMode
+                    , batchSize
+                    , batchMinTriggerDelayMs);
         }
     }
 }
