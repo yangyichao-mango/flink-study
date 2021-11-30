@@ -17,8 +17,8 @@ public class RedisDemo {
 
     public static void main(String[] args) {
         singleConnect();
-        poolConnect();
-        pipeline();
+//        poolConnect();
+//        pipeline();
     }
 
     public static void singleConnect() {
@@ -28,12 +28,12 @@ public class RedisDemo {
 
         HashMap<String, Object> h = new HashMap<>();
 
-        h.put("name", "namehhh");
-        h.put("age", "3");
+        h.put("sex", "男");
+        h.put("age", "18-24");
 
         String s = new Gson().toJson(h);
 
-        jedis.set("a", s);
+        jedis.set("c", s);
 
         System.out.println(result);
         jedis.close();
