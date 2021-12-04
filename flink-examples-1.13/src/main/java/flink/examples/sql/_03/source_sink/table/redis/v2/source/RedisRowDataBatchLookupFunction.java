@@ -158,7 +158,6 @@ public class RedisRowDataBatchLookupFunction extends TableFunction<List<RowData>
             this.evaler = in -> {
 
                 List<Object> inner = (List<Object>) in[0];
-
                 List<byte[]> keys = inner
                         .stream()
                         .map(o -> {
@@ -169,9 +168,7 @@ public class RedisRowDataBatchLookupFunction extends TableFunction<List<RowData>
                             }
                         })
                         .collect(Collectors.toList());
-
                 List<Object> value = null;
-
                 switch (redisCommand) {
                     case GET:
                         value = this.redisCommandsContainer.multiGet(keys);
@@ -179,7 +176,6 @@ public class RedisRowDataBatchLookupFunction extends TableFunction<List<RowData>
                     default:
                         throw new IllegalArgumentException("Cannot process such data type: " + redisCommand);
                 }
-
                 List<RowData> result = value
                         .stream()
                         .map(o -> {
