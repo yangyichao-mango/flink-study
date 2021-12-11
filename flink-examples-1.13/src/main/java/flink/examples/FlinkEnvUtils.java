@@ -182,24 +182,30 @@ public class FlinkEnvUtils {
         if (enableHiveModuleV2) {
             String version = "3.1.2";
 
-            Optional.ofNullable(flinkEnv.streamTEnv())
-                    .ifPresent(s -> s.unloadModule("core"));
-
-            Optional.ofNullable(flinkEnv.batchTEnv())
-                    .ifPresent(s -> s.unloadModule("core"));
-
             HiveModuleV2 hiveModuleV2 = new HiveModuleV2(version);
+
+            final boolean enableHiveModuleLoadFirst = parameterTool.getBoolean("enable.hive.module.load-first", true);
 
             Optional.ofNullable(flinkEnv.streamTEnv())
                     .ifPresent(s -> {
-                        s.loadModule("default", hiveModuleV2);
-                        s.loadModule("core", CoreModule.INSTANCE);
+                        if (enableHiveModuleLoadFirst) {
+                            s.unloadModule("core");
+                            s.loadModule("default", hiveModuleV2);
+                            s.loadModule("core", CoreModule.INSTANCE);
+                        } else {
+                            s.loadModule("default", hiveModuleV2);
+                        }
                     });
 
             Optional.ofNullable(flinkEnv.batchTEnv())
                     .ifPresent(s -> {
-                        s.loadModule("default", hiveModuleV2);
-                        s.loadModule("core", CoreModule.INSTANCE);
+                        if (enableHiveModuleLoadFirst) {
+                            s.unloadModule("core");
+                            s.loadModule("default", hiveModuleV2);
+                            s.loadModule("core", CoreModule.INSTANCE);
+                        } else {
+                            s.loadModule("default", hiveModuleV2);
+                        }
                     });
 
             flinkEnv.setHiveModuleV2(hiveModuleV2);
