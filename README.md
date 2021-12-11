@@ -50,7 +50,7 @@
 15. [公众号文章：flink sql 知其所以然（十三）：流 join 很难嘛？？？（下）]()，[源码](https://github.com/yangyichao-mango/flink-study/tree/main/flink-examples-1.13/src/main/java/flink/examples/sql/_07/query/_06_joins/_02_interval_joins)
 16. [公众号文章：flink sql 知其所以然（十四）：维表 join 的性能优化之路（上）附源码]()，[源码](https://github.com/yangyichao-mango/flink-study/tree/main/flink-examples-1.13/src/main/java/flink/examples/sql/_07/query/_06_joins/_04_lookup_join/_01_redis)
 17. [公众号文章：flink sql 知其所以然（十五）：改了改源码，实现了个 batch lookup join（附源码）]()，[源码](https://github.com/yangyichao-mango/flink-study/blob/main/flink-examples-1.13/src/main/java/flink/examples/sql/_07/query/_06_joins/_04_lookup_join/_01_redis/RedisBatchLookupTest2.java)
-18. [公众号文章：flink sql 知其所以然（十八）：在 flink 中怎么使用 hive udf？附源码]()，[源码](https://github.com/yangyichao-mango/flink-study/blob/main/flink-examples-1.13/src/main/java/flink/examples/sql/_07/query/_06_joins/_04_lookup_join/_01_redis/RedisBatchLookupTest2.java)
+18. [公众号文章：flink sql 知其所以然（十八）：在 flink 中怎么使用 hive udf？附源码]()，[源码](https://github.com/yangyichao-mango/flink-study/tree/main/flink-examples-1.13/src/main/java/flink/examples/sql/_09/udf/_02_stream_hive_udf)
 
 ## 2.2.flink 实战
 
