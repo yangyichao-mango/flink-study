@@ -23,8 +23,8 @@ public class Interval_Left_Joins_EventTime_Test {
                 + "  'connector' = 'datagen',\n"
                 + "  'rows-per-second' = '1',\n"
                 + "  'fields.show_params.length' = '1',\n"
-                + "  'fields.log_id.min' = '1',\n"
-                + "  'fields.log_id.max' = '10'\n"
+                + "  'fields.log_id.min' = '5',\n"
+                + "  'fields.log_id.max' = '15'\n"
                 + ");\n"
                 + "\n"
                 + "CREATE TABLE click_log (\n"
@@ -57,7 +57,7 @@ public class Interval_Left_Joins_EventTime_Test {
                 + "    click_log.log_id as c_id,\n"
                 + "    click_log.click_params as c_params\n"
                 + "FROM show_log LEFT JOIN click_log ON show_log.log_id = click_log.log_id\n"
-                + "AND show_log.row_time BETWEEN click_log.row_time - INTERVAL '10' MINUTE AND click_log.row_time + INTERVAL '10' MINUTE;";
+                + "AND show_log.row_time BETWEEN click_log.row_time - INTERVAL '5' SECOND AND click_log.row_time + INTERVAL '5' SECOND;";
 
         /**
          * join 算子：{@link org.apache.flink.table.runtime.operators.join.KeyedCoProcessOperatorWithWatermarkDelay}

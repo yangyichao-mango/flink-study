@@ -1,4 +1,4 @@
-package flink.examples.sql._07.query._06_joins._01_regular_joins._01_inner_join;
+package flink.examples.sql._07.query._06_joins._05_array_expansion;
 
 import java.util.Arrays;
 
@@ -6,7 +6,7 @@ import flink.examples.FlinkEnvUtils;
 import flink.examples.FlinkEnvUtils.FlinkEnv;
 
 
-public class _01_InnerJoinsTest {
+public class _01_ArrayExpansionTest {
 
     public static void main(String[] args) throws Exception {
 
@@ -16,44 +16,51 @@ public class _01_InnerJoinsTest {
 
         String sql = "CREATE TABLE show_log_table (\n"
                 + "    log_id BIGINT,\n"
-                + "    show_params STRING\n"
+                + "    show_params ARRAY<STRING>\n"
                 + ") WITH (\n"
                 + "  'connector' = 'datagen',\n"
-                + "  'rows-per-second' = '2',\n"
-                + "  'fields.show_params.length' = '1',\n"
-                + "  'fields.log_id.min' = '1',\n"
-                + "  'fields.log_id.max' = '100'\n"
-                + ");\n"
-                + "\n"
-                + "CREATE TABLE click_log_table (\n"
-                + "  log_id BIGINT,\n"
-                + "  click_params     STRING\n"
-                + ")\n"
-                + "WITH (\n"
-                + "  'connector' = 'datagen',\n"
-                + "  'rows-per-second' = '2',\n"
-                + "  'fields.click_params.length' = '1',\n"
+                + "  'rows-per-second' = '1',\n"
                 + "  'fields.log_id.min' = '1',\n"
                 + "  'fields.log_id.max' = '10'\n"
                 + ");\n"
                 + "\n"
                 + "CREATE TABLE sink_table (\n"
-                + "    s_id BIGINT,\n"
-                + "    s_params STRING,\n"
-                + "    c_id BIGINT,\n"
-                + "    c_params STRING\n"
+                + "    log_id BIGINT,\n"
+                + "    show_param STRING\n"
                 + ") WITH (\n"
                 + "  'connector' = 'print'\n"
                 + ");\n"
                 + "\n"
                 + "INSERT INTO sink_table\n"
                 + "SELECT\n"
-                + "    show_log_table.log_id as s_id,\n"
-                + "    show_log_table.show_params as s_params,\n"
-                + "    click_log_table.log_id as c_id,\n"
-                + "    click_log_table.click_params as c_params\n"
+                + "    log_id,\n"
+                + "    t.show_param as show_param\n"
                 + "FROM show_log_table\n"
-                + "INNER JOIN click_log_table ON show_log_table.log_id = click_log_table.log_id;";
+                + "CROSS JOIN UNNEST(show_params) AS t (show_param)";
+
+
+        String originalSql = "CREATE TABLE show_log_table (\n"
+                + "    log_id BIGINT,\n"
+                + "    show_params ARRAY<STRING>\n"
+                + ") WITH (\n"
+                + "  'connector' = 'datagen',\n"
+                + "  'rows-per-second' = '1',\n"
+                + "  'fields.log_id.min' = '1',\n"
+                + "  'fields.log_id.max' = '10'\n"
+                + ");\n"
+                + "\n"
+                + "CREATE TABLE sink_table (\n"
+                + "    log_id BIGINT,\n"
+                + "    show_params ARRAY<STRING>\n"
+                + ") WITH (\n"
+                + "  'connector' = 'print'\n"
+                + ");\n"
+                + "\n"
+                + "INSERT INTO sink_table\n"
+                + "SELECT\n"
+                + "    log_id,\n"
+                + "    show_params\n"
+                + "FROM show_log_table\n";
 
         /**
          * join 算子：{@link org.apache.flink.table.runtime.operators.join.stream.StreamingJoinOperator}

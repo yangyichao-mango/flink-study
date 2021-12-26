@@ -101,6 +101,8 @@ public class FlinkEnvUtils {
 
         String stateBackend = parameterTool.get("state.backend", "rocksdb");
 
+        env.setParallelism(1);
+
         if ("rocksdb".equals(stateBackend)) {
 
             setRocksDBStateBackend(env);

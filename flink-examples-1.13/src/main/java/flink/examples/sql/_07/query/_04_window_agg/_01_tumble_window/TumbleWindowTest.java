@@ -1,43 +1,14 @@
 package flink.examples.sql._07.query._04_window_agg._01_tumble_window;
 
-import java.util.concurrent.TimeUnit;
-
-import org.apache.flink.api.common.restartstrategy.RestartStrategies;
-import org.apache.flink.api.java.utils.ParameterTool;
-import org.apache.flink.configuration.Configuration;
-import org.apache.flink.streaming.api.CheckpointingMode;
-import org.apache.flink.streaming.api.environment.CheckpointConfig;
-import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.table.api.EnvironmentSettings;
-import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
+import flink.examples.FlinkEnvUtils;
+import flink.examples.FlinkEnvUtils.FlinkEnv;
 
 
 public class TumbleWindowTest {
 
     public static void main(String[] args) throws Exception {
 
-        StreamExecutionEnvironment env =
-                StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(new Configuration());
-
-        ParameterTool parameterTool = ParameterTool.fromArgs(args);
-
-        env.setRestartStrategy(RestartStrategies.failureRateRestart(6, org.apache.flink.api.common.time.Time
-                .of(10L, TimeUnit.MINUTES), org.apache.flink.api.common.time.Time.of(5L, TimeUnit.SECONDS)));
-        env.getConfig().setGlobalJobParameters(parameterTool);
-        env.setParallelism(10);
-
-        // ck 设置
-        env.getCheckpointConfig().setFailOnCheckpointingErrors(false);
-        env.enableCheckpointing(30 * 1000L, CheckpointingMode.EXACTLY_ONCE);
-        env.getCheckpointConfig().setMinPauseBetweenCheckpoints(3L);
-        env.getCheckpointConfig().enableExternalizedCheckpoints(CheckpointConfig.ExternalizedCheckpointCleanup.RETAIN_ON_CANCELLATION);
-
-        EnvironmentSettings settings = EnvironmentSettings
-                .newInstance()
-                .useBlinkPlanner()
-                .inStreamingMode().build();
-
-        StreamTableEnvironment tEnv = StreamTableEnvironment.create(env, settings);
+        FlinkEnv flinkEnv = FlinkEnvUtils.getStreamTableEnv(args);
 
         String sourceSql = "CREATE TABLE source_table (\n"
                 + "    dim STRING,\n"
@@ -96,11 +67,11 @@ public class TumbleWindowTest {
                 + "group by dim,\n"
                 + "\t\t window_start";
 
-        tEnv.getConfig().getConfiguration().setString("pipeline.name", "1.13.2 WINDOW TVF TUMBLE WINDOW 案例");
+        flinkEnv.streamTEnv().getConfig().getConfiguration().setString("pipeline.name", "1.13.2 WINDOW TVF TUMBLE WINDOW 案例");
 
-        tEnv.executeSql(sourceSql);
-        tEnv.executeSql(sinkSql);
-        tEnv.executeSql(selectWhereSql);
+        flinkEnv.streamTEnv().executeSql(sourceSql);
+        flinkEnv.streamTEnv().executeSql(sinkSql);
+        flinkEnv.streamTEnv().executeSql(selectWhereSql);
 
         /**
          * 两阶段聚合

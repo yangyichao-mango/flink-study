@@ -57,7 +57,7 @@ public class Interval_Full_Joins_EventTime_Test {
                 + "    click_log_table.log_id as c_id,\n"
                 + "    click_log_table.click_params as c_params\n"
                 + "FROM show_log_table FULL JOIN click_log_table ON show_log_table.log_id = click_log_table.log_id\n"
-                + "AND show_log_table.row_time BETWEEN click_log_table.row_time - INTERVAL '4' HOUR AND click_log_table.row_time;";
+                + "AND show_log_table.row_time BETWEEN click_log_table.row_time - INTERVAL '5' SECOND AND click_log_table.row_time;";
 
         /**
          * join 算子：{@link org.apache.flink.table.runtime.operators.join.KeyedCoProcessOperatorWithWatermarkDelay}

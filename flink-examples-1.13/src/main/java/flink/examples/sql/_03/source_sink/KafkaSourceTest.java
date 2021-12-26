@@ -19,7 +19,8 @@ public class KafkaSourceTest {
         EnvironmentSettings settings = EnvironmentSettings
                 .newInstance()
                 .useBlinkPlanner()
-                .inStreamingMode().build();
+                .inStreamingMode()
+                .build();
 
         StreamTableEnvironment tEnv = StreamTableEnvironment.create(env, settings);
 
