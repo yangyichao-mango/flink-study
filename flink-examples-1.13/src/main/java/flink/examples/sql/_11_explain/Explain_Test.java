@@ -1,10 +1,12 @@
-package flink.examples.sql._07.query._07_deduplication;
+package flink.examples.sql._11_explain;
+
+import org.apache.flink.table.api.TableResult;
 
 import flink.examples.FlinkEnvUtils;
 import flink.examples.FlinkEnvUtils.FlinkEnv;
 
 
-public class DeduplicationProcessingTimeTest {
+public class Explain_Test {
 
     public static void main(String[] args) throws Exception {
 
@@ -35,6 +37,7 @@ public class DeduplicationProcessingTimeTest {
                 + "  'connector' = 'print'\n"
                 + ");\n"
                 + "\n"
+                + "EXPLAIN PLAN FOR\n"
                 + "INSERT INTO sink_table\n"
                 + "select user_id,\n"
                 + "       name,\n"
@@ -55,7 +58,9 @@ public class DeduplicationProcessingTimeTest {
          */
 
         for (String innerSql : sql.split(";")) {
-            flinkEnv.streamTEnv().executeSql(innerSql);
+            TableResult tableResult = flinkEnv.streamTEnv().executeSql(innerSql);
+
+            tableResult.print();
         }
     }
 
