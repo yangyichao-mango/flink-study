@@ -117,23 +117,6 @@
 //    @Test
 //    public void seAndDeseProtobufRowDeserializationSchema() throws IOException, ClassNotFoundException {
 //
-//        ProtobufRowDeserializationSchema ds = new ProtobufRowDeserializationSchema(Person.class);
-//
-//        ByteArrayOutputStream bros = new ByteArrayOutputStream();
-//
-//        ObjectOutputStream oos = new ObjectOutputStream(bros);
-//
-//        oos.writeObject(ds);
-//
-//        byte[] b = bros.toByteArray();
-//
-//        ByteArrayInputStream bris = new ByteArrayInputStream(b);
-//
-//        ObjectInputStream ois = new ObjectInputStream(bris);
-//
-//        Object o = ois.readObject();
-//
-//        Assert.assertTrue(true);
 //
 //    }
 //
