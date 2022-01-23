@@ -1,6 +1,7 @@
-package flink.examples.sql._03.source_sink.table.user_defined;
+package flink.examples.sql._03.source_sink.abilities.source;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -24,13 +25,17 @@ import org.apache.flink.table.connector.source.abilities.SupportsWatermarkPushDo
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.expressions.ResolvedExpression;
 import org.apache.flink.table.types.DataType;
+import org.apache.flink.table.types.FieldsDataType;
+import org.apache.flink.table.types.logical.BigIntType;
+import org.apache.flink.table.types.logical.RowType;
+import org.apache.flink.types.Row;
 
 import com.google.common.collect.Lists;
 
 import lombok.SneakyThrows;
 
 
-public class UserDefinedDynamicTableSource implements ScanTableSource
+public class Abilities_TableSource implements ScanTableSource
         , SupportsFilterPushDown // 过滤条件下推
         , SupportsLimitPushDown // limit 条件下推
         , SupportsPartitionPushDown //
@@ -42,8 +47,9 @@ public class UserDefinedDynamicTableSource implements ScanTableSource
     private final String className;
     private final DecodingFormat<DeserializationSchema<RowData>> decodingFormat;
     private final DataType producedDataType;
+    private long limit;
 
-    public UserDefinedDynamicTableSource(
+    public Abilities_TableSource(
             String className,
             DecodingFormat<DeserializationSchema<RowData>> decodingFormat,
             DataType producedDataType) {
@@ -65,22 +71,38 @@ public class UserDefinedDynamicTableSource implements ScanTableSource
 
         // create runtime classes that are shipped to the cluster
 
+        FieldsDataType deser = (FieldsDataType) producedDataType;
+
+        List<DataType> dataTypes = new LinkedList<>(deser.getChildren());
+
+        dataTypes.add(DataTypes.BIGINT());
+
+        List<RowType.RowField> logicalTypes = new LinkedList<>(((RowType) deser.getLogicalType()).getFields());
+
+        logicalTypes.add(new RowType.RowField("flink_read_timestamp", new BigIntType()));
+
+        RowType rowType = new RowType(logicalTypes);
+
         final DeserializationSchema<RowData> deserializer = decodingFormat.createRuntimeDecoder(
                 runtimeProviderContext,
-                producedDataType);
-
-        Map<String, DataType> readableMetadata = decodingFormat.listReadableMetadata();
+                new FieldsDataType(rowType, Row.class, dataTypes));
 
         Class<?> clazz = this.getClass().getClassLoader().loadClass(className);
 
-        RichSourceFunction<RowData> r = (RichSourceFunction<RowData>) clazz.getConstructors()[0].newInstance(deserializer);
+        RichSourceFunction<RowData> r;
+
+        if (0 == limit) {
+            r = (RichSourceFunction<RowData>) clazz.getConstructors()[0].newInstance(deserializer);
+        } else {
+            r = (RichSourceFunction<RowData>) clazz.getConstructors()[1].newInstance(deserializer, this.limit);
+        }
 
         return SourceFunctionProvider.of(r, false);
     }
 
     @Override
     public DynamicTableSource copy() {
-        return new UserDefinedDynamicTableSource(className, decodingFormat, producedDataType);
+        return new Abilities_TableSource(className, decodingFormat, producedDataType);
     }
 
     @Override
@@ -90,12 +112,15 @@ public class UserDefinedDynamicTableSource implements ScanTableSource
 
     @Override
     public Result applyFilters(List<ResolvedExpression> filters) {
+        // 不上推任何过滤条件
         return Result.of(Lists.newLinkedList(), filters);
+        // 将所有的过滤条件都上推到 source
+//        return Result.of(filters, Lists.newLinkedList());
     }
 
     @Override
     public void applyLimit(long limit) {
-        System.out.println(1);
+        this.limit = limit;
     }
 
     @Override
