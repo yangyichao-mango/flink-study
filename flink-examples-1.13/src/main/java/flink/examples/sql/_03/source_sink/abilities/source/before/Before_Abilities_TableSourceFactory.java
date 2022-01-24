@@ -1,4 +1,4 @@
-package flink.examples.sql._03.source_sink.abilities.source;
+package flink.examples.sql._03.source_sink.abilities.source.before;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -19,7 +19,7 @@ import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.utils.TableSchemaUtils;
 
 
-public class Abilities_TableSourceFactory implements DynamicTableSourceFactory {
+public class Before_Abilities_TableSourceFactory implements DynamicTableSourceFactory {
 
     // define all options statically
     public static final ConfigOption<String> CLASS_NAME = ConfigOptions.key("class.name")
@@ -28,7 +28,7 @@ public class Abilities_TableSourceFactory implements DynamicTableSourceFactory {
 
     @Override
     public String factoryIdentifier() {
-        return "supports_reading_metadata_user_defined"; // used for matching to `connector = '...'`
+        return "before_supports_reading_metadata_user_defined"; // used for matching to `connector = '...'`
     }
 
     @Override
@@ -83,7 +83,7 @@ public class Abilities_TableSourceFactory implements DynamicTableSourceFactory {
         TableSchema tableSchema = context.getCatalogTable().getSchema();
 
         // create and return dynamic table source
-        return new Abilities_TableSource(className
+        return new Before_Abilities_TableSource(className
                 , decodingFormat
                 , sourceRowDataType
                 , producedDataType

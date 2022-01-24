@@ -67,7 +67,7 @@ public class TumbleWindowTest {
                 + "group by dim,\n"
                 + "\t\t window_start";
 
-        flinkEnv.streamTEnv().getConfig().getConfiguration().setString("pipeline.name", "1.13.2 WINDOW TVF TUMBLE WINDOW 案例");
+        flinkEnv.streamTEnv().getConfig().getConfiguration().setString("pipeline.name", "1.13.5 WINDOW TVF TUMBLE WINDOW 案例");
 
         flinkEnv.streamTEnv().executeSql(sourceSql);
         flinkEnv.streamTEnv().executeSql(sinkSql);

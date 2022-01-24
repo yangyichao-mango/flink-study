@@ -1,11 +1,11 @@
-package flink.examples.sql._03.source_sink.abilities.source;
+package flink.examples.sql._03.source_sink.abilities.source.before;
 
 import java.util.Arrays;
 
 import flink.examples.FlinkEnvUtils;
 import flink.examples.FlinkEnvUtils.FlinkEnv;
 
-public class _04_SupportsProjectionPushDown_Test {
+public class _01_Before_SupportsFilterPushDown_Test {
 
     public static void main(String[] args) throws Exception {
 
@@ -17,13 +17,11 @@ public class _04_SupportsProjectionPushDown_Test {
 
         String sql = "CREATE TABLE source_table (\n"
                 + "    user_id BIGINT,\n"
-                + "    `name1` STRING,\n"
-                + "    `name2` STRING,\n"
-                + "    `name3` STRING\n"
+                + "    `name` STRING\n"
                 + ") WITH (\n"
-                + "  'connector' = 'supports_reading_metadata_user_defined',\n"
+                + "  'connector' = 'before_supports_reading_metadata_user_defined',\n"
                 + "  'format' = 'json',\n"
-                + "  'class.name' = 'flink.examples.sql._03.source_sink.abilities.source.Abilities_SourceFunction'\n"
+                + "  'class.name' = 'flink.examples.sql._03.source_sink.abilities.source.before.Before_Abilities_SourceFunction'\n"
                 + ");\n"
                 + "\n"
                 + "CREATE TABLE sink_table (\n"
@@ -35,9 +33,9 @@ public class _04_SupportsProjectionPushDown_Test {
                 + "\n"
                 + "INSERT INTO sink_table\n"
                 + "SELECT\n"
-                + "    user_id\n"
-                + "    , name1 as name\n"
-                + "FROM source_table";
+                + "    *\n"
+                + "FROM source_table\n"
+                + "WHERE user_id > 3333\n";
 
         Arrays.stream(sql.split(";"))
                 .forEach(flinkEnv.streamTEnv()::executeSql);

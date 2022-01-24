@@ -1,11 +1,11 @@
-package flink.examples.sql._03.source_sink.abilities.source;
+package flink.examples.sql._03.source_sink.abilities.source.before;
 
 import java.util.Arrays;
 
 import flink.examples.FlinkEnvUtils;
 import flink.examples.FlinkEnvUtils.FlinkEnv;
 
-public class _04_SupportsProjectionPushDown_Test {
+public class _04_Before_SupportsProjectionPushDown_Test {
 
     public static void main(String[] args) throws Exception {
 
@@ -21,9 +21,9 @@ public class _04_SupportsProjectionPushDown_Test {
                 + "    `name2` STRING,\n"
                 + "    `name3` STRING\n"
                 + ") WITH (\n"
-                + "  'connector' = 'supports_reading_metadata_user_defined',\n"
+                + "  'connector' = 'before_supports_reading_metadata_user_defined',\n"
                 + "  'format' = 'json',\n"
-                + "  'class.name' = 'flink.examples.sql._03.source_sink.abilities.source.Abilities_SourceFunction'\n"
+                + "  'class.name' = 'flink.examples.sql._03.source_sink.abilities.source.before.Before_Abilities_SourceFunction'\n"
                 + ");\n"
                 + "\n"
                 + "CREATE TABLE sink_table (\n"

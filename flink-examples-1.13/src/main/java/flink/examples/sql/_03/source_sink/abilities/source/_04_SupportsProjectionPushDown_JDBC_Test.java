@@ -5,7 +5,7 @@ import java.util.Arrays;
 import flink.examples.FlinkEnvUtils;
 import flink.examples.FlinkEnvUtils.FlinkEnv;
 
-public class _01_SupportsFilterPushDown_Test {
+public class _04_SupportsProjectionPushDown_JDBC_Test {
 
     public static void main(String[] args) throws Exception {
 
@@ -13,29 +13,30 @@ public class _01_SupportsFilterPushDown_Test {
 
         flinkEnv.streamTEnv().getConfig().getConfiguration().setString("pipeline.name", "1.13.5 用户自定义 SOURCE 案例");
 
-        flinkEnv.streamTEnv().getConfig().getConfiguration().setString("state.backend", "rocksdb");
-
-        String sql = "CREATE TABLE source_table (\n"
-                + "    user_id BIGINT,\n"
-                + "    `name` STRING\n"
+        String sql = "CREATE TABLE source_table_1 (\n"
+                + "    id DECIMAL(20, 0),\n"
+                + "    name STRING,\n"
+                + "    owner STRING\n"
                 + ") WITH (\n"
-                + "  'connector' = 'supports_reading_metadata_user_defined',\n"
-                + "  'format' = 'json',\n"
-                + "  'class.name' = 'flink.examples.sql._03.source_sink.abilities.source.Abilities_SourceFunction'\n"
+                + "  'connector' = 'jdbc',\n"
+                + "  'url' = 'jdbc:mysql://localhost:3306/user_profile',\n"
+                + "  'username' = 'root',\n"
+                + "  'password' = 'root123456',\n"
+                + "  'table-name' = 'user_test'\n"
                 + ");\n"
                 + "\n"
-                + "CREATE TABLE sink_table (\n"
-                + "    user_id BIGINT,\n"
+                + "CREATE TABLE sink_table_2 (\n"
+                + "    id DECIMAL(20, 0),\n"
                 + "    name STRING\n"
                 + ") WITH (\n"
                 + "  'connector' = 'print'\n"
                 + ");\n"
                 + "\n"
-                + "INSERT INTO sink_table\n"
+                + "INSERT INTO sink_table_2\n"
                 + "SELECT\n"
-                + "    *\n"
-                + "FROM source_table\n"
-                + "WHERE user_id > 3333\n";
+                + "    id\n"
+                + "    , name\n"
+                + "FROM source_table_1\n";
 
         Arrays.stream(sql.split(";"))
                 .forEach(flinkEnv.streamTEnv()::executeSql);

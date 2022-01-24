@@ -18,4 +18,5 @@ flink.examples.sql._03.source_sink.table.socket.SocketDynamicTableFactory
 flink.examples.sql._03.source_sink.table.redis.v2.RedisDynamicTableFactory
 flink.examples.sql._03.source_sink.table.user_defined.UserDefinedDynamicTableFactory
 flink.examples.sql._03.source_sink.abilities.source.Abilities_TableSourceFactory
+flink.examples.sql._03.source_sink.abilities.source.before.Before_Abilities_TableSourceFactory
 flink.examples.sql._05.format.formats.protobuf.rowdata.ProtobufFormatFactory

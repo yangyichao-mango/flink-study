@@ -11,7 +11,7 @@ public class CreateViewTest {
 
         FlinkEnv flinkEnv = FlinkEnvUtils.getStreamTableEnv(args);
 
-        flinkEnv.streamTEnv().getConfig().getConfiguration().setString("pipeline.name", "1.13.2 用户自定义 SOURCE 案例");
+        flinkEnv.streamTEnv().getConfig().getConfiguration().setString("pipeline.name", "1.13.5 用户自定义 SOURCE 案例");
 
         flinkEnv.streamTEnv().getConfig().getConfiguration().setString("state.backend", "rocksdb");
 

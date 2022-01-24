@@ -40,7 +40,7 @@ public class _01_DataGenSourceTest {
 
         StreamTableEnvironment tEnv = StreamTableEnvironment.create(env, settings);
 
-        tEnv.getConfig().getConfiguration().setString("pipeline.name", "1.13.2 TUMBLE WINDOW 案例");
+        tEnv.getConfig().getConfiguration().setString("pipeline.name", "1.13.5 TUMBLE WINDOW 案例");
 
         tEnv.getConfig().getConfiguration().setString("state.backend", "rocksdb");
 

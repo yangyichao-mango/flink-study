@@ -11,24 +11,22 @@ public class _02_SupportsLimitPushDown_Test {
 
         FlinkEnv flinkEnv = FlinkEnvUtils.getStreamTableEnv(args);
 
-        flinkEnv.streamTEnv().getConfig().getConfiguration().setString("pipeline.name", "1.13.2 用户自定义 SOURCE 案例");
+        flinkEnv.streamTEnv().getConfig().getConfiguration().setString("pipeline.name", "1.13.5 用户自定义 SOURCE 案例");
 
         flinkEnv.streamTEnv().getConfig().getConfiguration().setString("state.backend", "rocksdb");
 
         String sql = "CREATE TABLE source_table (\n"
                 + "    user_id BIGINT,\n"
-                + "    flink_read_timestamp BIGINT METADATA VIRTUAL,\n"
-                + "    `name` STRING\n"
+                + "    flink_read_timestamp BIGINT\n"
                 + ") WITH (\n"
                 + "  'connector' = 'supports_reading_metadata_user_defined',\n"
                 + "  'format' = 'json',\n"
-                + "  'class.name' = 'flink.examples.sql._03.source_sink.abilities.source._01_SupportsReadingMetadata_SourceFunction'\n"
+                + "  'class.name' = 'flink.examples.sql._03.source_sink.abilities.source.Abilities_SourceFunction'\n"
                 + ");\n"
                 + "\n"
                 + "CREATE TABLE sink_table (\n"
                 + "    user_id BIGINT,\n"
-                + "    flink_read_timestamp BIGINT,\n"
-                + "    name STRING\n"
+                + "    flink_read_timestamp BIGINT\n"
                 + ") WITH (\n"
                 + "  'connector' = 'print'\n"
                 + ");\n"

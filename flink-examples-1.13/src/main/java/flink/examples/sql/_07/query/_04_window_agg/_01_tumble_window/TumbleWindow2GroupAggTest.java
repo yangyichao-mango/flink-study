@@ -75,7 +75,7 @@ public class TumbleWindow2GroupAggTest {
                 + "group by dim,\n"
                 + "         window_start";
 
-        flinkEnv.streamTEnv().getConfig().getConfiguration().setString("pipeline.name", "1.13.2 WINDOW TVF TUMBLE WINDOW 案例");
+        flinkEnv.streamTEnv().getConfig().getConfiguration().setString("pipeline.name", "1.13.5 WINDOW TVF TUMBLE WINDOW 案例");
 
         Arrays.stream(sql.split(";"))
                 .forEach(flinkEnv.streamTEnv()::executeSql);

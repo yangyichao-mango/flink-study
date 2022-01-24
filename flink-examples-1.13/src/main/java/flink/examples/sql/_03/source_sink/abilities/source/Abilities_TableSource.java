@@ -10,6 +10,8 @@ import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.streaming.api.functions.source.RichSourceFunction;
 import org.apache.flink.table.api.DataTypes;
+import org.apache.flink.table.api.TableColumn.MetadataColumn;
+import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.connector.ChangelogMode;
 import org.apache.flink.table.connector.format.DecodingFormat;
 import org.apache.flink.table.connector.source.DynamicTableSource;
@@ -25,16 +27,14 @@ import org.apache.flink.table.connector.source.abilities.SupportsWatermarkPushDo
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.expressions.ResolvedExpression;
 import org.apache.flink.table.types.DataType;
-import org.apache.flink.table.types.FieldsDataType;
-import org.apache.flink.table.types.logical.BigIntType;
-import org.apache.flink.table.types.logical.RowType;
-import org.apache.flink.types.Row;
+import org.apache.flink.table.utils.TableSchemaUtils;
 
 import com.google.common.collect.Lists;
 
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 
-
+@Slf4j
 public class Abilities_TableSource implements ScanTableSource
         , SupportsFilterPushDown // 过滤条件下推
         , SupportsLimitPushDown // limit 条件下推
@@ -46,16 +46,28 @@ public class Abilities_TableSource implements ScanTableSource
 
     private final String className;
     private final DecodingFormat<DeserializationSchema<RowData>> decodingFormat;
+    private final DataType sourceRowDataType;
     private final DataType producedDataType;
-    private long limit;
+    private TableSchema physicalSchema;
+    private TableSchema tableSchema;
+    private long limit = -1;
+    private WatermarkStrategy<RowData> watermarkStrategy;
+    private boolean enableSourceWatermark;
+    private List<ResolvedExpression> filters;
 
     public Abilities_TableSource(
             String className,
             DecodingFormat<DeserializationSchema<RowData>> decodingFormat,
-            DataType producedDataType) {
+            DataType sourceRowDataType,
+            DataType producedDataType,
+            TableSchema physicalSchema,
+            TableSchema tableSchema) {
         this.className = className;
         this.decodingFormat = decodingFormat;
+        this.sourceRowDataType = sourceRowDataType;
         this.producedDataType = producedDataType;
+        this.physicalSchema = physicalSchema;
+        this.tableSchema = tableSchema;
     }
 
     @Override
@@ -71,30 +83,20 @@ public class Abilities_TableSource implements ScanTableSource
 
         // create runtime classes that are shipped to the cluster
 
-        FieldsDataType deser = (FieldsDataType) producedDataType;
-
-        List<DataType> dataTypes = new LinkedList<>(deser.getChildren());
-
-        dataTypes.add(DataTypes.BIGINT());
-
-        List<RowType.RowField> logicalTypes = new LinkedList<>(((RowType) deser.getLogicalType()).getFields());
-
-        logicalTypes.add(new RowType.RowField("flink_read_timestamp", new BigIntType()));
-
-        RowType rowType = new RowType(logicalTypes);
-
         final DeserializationSchema<RowData> deserializer = decodingFormat.createRuntimeDecoder(
                 runtimeProviderContext,
-                new FieldsDataType(rowType, Row.class, dataTypes));
+                getSchemaWithMetadata(this.tableSchema).toRowDataType());
 
         Class<?> clazz = this.getClass().getClassLoader().loadClass(className);
 
         RichSourceFunction<RowData> r;
 
-        if (0 == limit) {
-            r = (RichSourceFunction<RowData>) clazz.getConstructors()[0].newInstance(deserializer);
+        if (limit > 0) {
+            r = (RichSourceFunction<RowData>) clazz.getConstructor(DeserializationSchema.class, long.class).newInstance(deserializer, this.limit);
+        } else if (enableSourceWatermark) {
+            r = (RichSourceFunction<RowData>) clazz.getConstructor(DeserializationSchema.class, boolean.class).newInstance(deserializer, this.enableSourceWatermark);
         } else {
-            r = (RichSourceFunction<RowData>) clazz.getConstructors()[1].newInstance(deserializer, this.limit);
+            r = (RichSourceFunction<RowData>) clazz.getConstructor(DeserializationSchema.class).newInstance(deserializer);
         }
 
         return SourceFunctionProvider.of(r, false);
@@ -102,7 +104,7 @@ public class Abilities_TableSource implements ScanTableSource
 
     @Override
     public DynamicTableSource copy() {
-        return new Abilities_TableSource(className, decodingFormat, producedDataType);
+        return new Abilities_TableSource(className, decodingFormat, sourceRowDataType, producedDataType, physicalSchema, tableSchema);
     }
 
     @Override
@@ -112,10 +114,13 @@ public class Abilities_TableSource implements ScanTableSource
 
     @Override
     public Result applyFilters(List<ResolvedExpression> filters) {
+
+        this.filters = new LinkedList<>(filters);
+
         // 不上推任何过滤条件
-        return Result.of(Lists.newLinkedList(), filters);
+//        return Result.of(Lists.newLinkedList(), filters);
         // 将所有的过滤条件都上推到 source
-//        return Result.of(filters, Lists.newLinkedList());
+        return Result.of(filters, Lists.newLinkedList());
     }
 
     @Override
@@ -140,7 +145,7 @@ public class Abilities_TableSource implements ScanTableSource
 
     @Override
     public void applyProjection(int[][] projectedFields) {
-        System.out.println(1);
+        this.tableSchema = projectSchemaWithMetadata(this.tableSchema, projectedFields);
     }
 
     @Override
@@ -157,11 +162,57 @@ public class Abilities_TableSource implements ScanTableSource
 
     @Override
     public void applyWatermark(WatermarkStrategy<RowData> watermarkStrategy) {
-        System.out.println(1);
+        log.info("Successfully applyWatermark");
+
+        this.watermarkStrategy = watermarkStrategy;
     }
 
     @Override
     public void applySourceWatermark() {
-        System.out.println(1);
+        log.info("Successfully applySourceWatermark");
+
+        this.enableSourceWatermark = true;
+    }
+
+    public static TableSchema projectSchemaWithMetadata(TableSchema tableSchema, int[][] projectedFields) {
+
+        TableSchema.Builder builder = new TableSchema.Builder();
+        TableSchema physicalProjectedSchema = TableSchemaUtils.projectSchema(TableSchemaUtils.getPhysicalSchema(tableSchema), projectedFields);
+
+        physicalProjectedSchema
+                .getTableColumns()
+                .forEach(
+                        tableColumn -> {
+                            if (tableColumn.isPhysical()) {
+                                builder.field(tableColumn.getName(), tableColumn.getType());
+                            }
+                        });
+
+        tableSchema
+                .getTableColumns()
+                .forEach(
+                        tableColumn -> {
+                            if (tableColumn instanceof MetadataColumn) {
+                                builder.field(tableColumn.getName(), tableColumn.getType());
+                            }
+                        });
+        return builder.build();
+    }
+
+    public static TableSchema getSchemaWithMetadata(TableSchema tableSchema) {
+
+        TableSchema.Builder builder = new TableSchema.Builder();
+
+        tableSchema
+                .getTableColumns()
+                .forEach(
+                        tableColumn -> {
+                            if (tableColumn.isPhysical()) {
+                                builder.field(tableColumn.getName(), tableColumn.getType());
+                            } else if (tableColumn instanceof MetadataColumn) {
+                                builder.field(tableColumn.getName(), tableColumn.getType());
+                            }
+                        });
+        return builder.build();
     }
 }

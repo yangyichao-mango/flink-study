@@ -12,7 +12,7 @@ public class Temporal_Join_ProcesingTime_Test {
 
         FlinkEnv flinkEnv = FlinkEnvUtils.getStreamTableEnv(args);
 
-        flinkEnv.streamTEnv().getConfig().getConfiguration().setString("pipeline.name", "1.13.2 Temporal Join 处理时间案例");
+        flinkEnv.streamTEnv().getConfig().getConfiguration().setString("pipeline.name", "1.13.5 Temporal Join 处理时间案例");
         flinkEnv.env().setParallelism(1);
 
         String exampleSql = "CREATE TABLE show_log_table (\n"

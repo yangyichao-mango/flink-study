@@ -69,7 +69,7 @@ public class TumbleWindowEarlyFireTest {
                 + "group by dim,\n"
                 + "         window_start";
 
-        flinkEnv.getStreamTableEnvironment().getConfig().getConfiguration().setString("pipeline.name", "1.13.2 WINDOW TVF TUMBLE WINDOW EARLY FIRE 案例");
+        flinkEnv.getStreamTableEnvironment().getConfig().getConfiguration().setString("pipeline.name", "1.13.5 WINDOW TVF TUMBLE WINDOW EARLY FIRE 案例");
 
         Arrays.stream(sql.split(";"))
                 .forEach(flinkEnv.getStreamTableEnvironment()::executeSql);

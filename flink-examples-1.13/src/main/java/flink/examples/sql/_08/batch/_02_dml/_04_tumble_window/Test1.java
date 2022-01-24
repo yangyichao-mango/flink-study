@@ -67,7 +67,7 @@ public class Test1 {
 
         TableEnvironment tEnv = TableEnvironment.create(settings);
 
-        tEnv.getConfig().getConfiguration().setString("pipeline.name", "1.13.2 Interval Outer Join 事件时间案例");
+        tEnv.getConfig().getConfiguration().setString("pipeline.name", "1.13.5 Interval Outer Join 事件时间案例");
 
 
         String defaultDatabase = "default";

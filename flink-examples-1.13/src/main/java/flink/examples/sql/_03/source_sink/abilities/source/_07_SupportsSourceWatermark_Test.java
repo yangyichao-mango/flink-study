@@ -5,7 +5,7 @@ import java.util.Arrays;
 import flink.examples.FlinkEnvUtils;
 import flink.examples.FlinkEnvUtils.FlinkEnv;
 
-public class _04_SupportsProjectionPushDown_Test {
+public class _07_SupportsSourceWatermark_Test {
 
     public static void main(String[] args) throws Exception {
 
@@ -17,9 +17,9 @@ public class _04_SupportsProjectionPushDown_Test {
 
         String sql = "CREATE TABLE source_table (\n"
                 + "    user_id BIGINT,\n"
-                + "    `name1` STRING,\n"
-                + "    `name2` STRING,\n"
-                + "    `name3` STRING\n"
+                + "    flink_read_timestamp BIGINT METADATA VIRTUAL,\n"
+                + "    row_time AS TO_TIMESTAMP_LTZ(flink_read_timestamp, 3),\n"
+                + "    WATERMARK FOR row_time AS SOURCE_WATERMARK()\n"
                 + ") WITH (\n"
                 + "  'connector' = 'supports_reading_metadata_user_defined',\n"
                 + "  'format' = 'json',\n"
@@ -27,17 +27,24 @@ public class _04_SupportsProjectionPushDown_Test {
                 + ");\n"
                 + "\n"
                 + "CREATE TABLE sink_table (\n"
-                + "    user_id BIGINT,\n"
-                + "    name STRING\n"
+                + "    window_end bigint,\n"
+                + "    window_start timestamp(3),\n"
+                + "    count_distinct_id BIGINT\n"
                 + ") WITH (\n"
                 + "  'connector' = 'print'\n"
                 + ");\n"
                 + "\n"
-                + "INSERT INTO sink_table\n"
-                + "SELECT\n"
-                + "    user_id\n"
-                + "    , name1 as name\n"
-                + "FROM source_table";
+                + "insert into sink_table\n"
+                + "SELECT UNIX_TIMESTAMP(CAST(window_end AS STRING)) * 1000 as window_end, \n"
+                + "      window_start, \n"
+                + "      count(distinct user_id) as count_distinct_id\n"
+                + "FROM TABLE(CUMULATE(\n"
+                + "         TABLE source_table\n"
+                + "         , DESCRIPTOR(row_time)\n"
+                + "         , INTERVAL '10' SECOND\n"
+                + "         , INTERVAL '1' DAY))\n"
+                + "GROUP BY window_start, \n"
+                + "        window_end";
 
         Arrays.stream(sql.split(";"))
                 .forEach(flinkEnv.streamTEnv()::executeSql);

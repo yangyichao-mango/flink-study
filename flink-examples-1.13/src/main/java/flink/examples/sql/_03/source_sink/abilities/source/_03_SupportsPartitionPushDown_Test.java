@@ -11,7 +11,7 @@ public class _03_SupportsPartitionPushDown_Test {
 
         FlinkEnv flinkEnv = FlinkEnvUtils.getStreamTableEnv(args);
 
-        flinkEnv.streamTEnv().getConfig().getConfiguration().setString("pipeline.name", "1.13.2 用户自定义 SOURCE 案例");
+        flinkEnv.streamTEnv().getConfig().getConfiguration().setString("pipeline.name", "1.13.5 用户自定义 SOURCE 案例");
 
         flinkEnv.streamTEnv().getConfig().getConfiguration().setString("state.backend", "rocksdb");
 
@@ -22,7 +22,7 @@ public class _03_SupportsPartitionPushDown_Test {
                 + ") WITH (\n"
                 + "  'connector' = 'supports_reading_metadata_user_defined',\n"
                 + "  'format' = 'json',\n"
-                + "  'class.name' = 'flink.examples.sql._03.source_sink.abilities.source._01_SupportsReadingMetadata_SourceFunction'\n"
+                + "  'class.name' = 'flink.examples.sql._03.source_sink.abilities.source.Abilities_SourceFunction'\n"
                 + ");\n"
                 + "\n"
                 + "CREATE TABLE sink_table (\n"

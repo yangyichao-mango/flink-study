@@ -12,7 +12,7 @@ public class Interval_Right_Joins_EventTime_Test {
 
         FlinkEnv flinkEnv = FlinkEnvUtils.getStreamTableEnv(args);
 
-        flinkEnv.streamTEnv().getConfig().getConfiguration().setString("pipeline.name", "1.13.2 Interval Outer Join 事件时间案例");
+        flinkEnv.streamTEnv().getConfig().getConfiguration().setString("pipeline.name", "1.13.5 Interval Outer Join 事件时间案例");
 
         String sql = "CREATE TABLE show_log_table (\n"
                 + "    log_id BIGINT,\n"
