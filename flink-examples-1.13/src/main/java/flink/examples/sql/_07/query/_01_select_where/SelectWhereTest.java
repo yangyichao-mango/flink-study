@@ -13,6 +13,7 @@ import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.CheckpointConfig;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
+import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
 import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.Schema;
 import org.apache.flink.table.api.Table;
@@ -47,6 +48,8 @@ public class SelectWhereTest {
                 .inStreamingMode().build();
 
         StreamTableEnvironment tEnv = StreamTableEnvironment.create(env, settings);
+
+        DataStream<Row> r = env.addSource(new FlinkKafkaConsumer<Row>());
 
         DataStream<Row> r = env.addSource(new UserDefinedSource());
 

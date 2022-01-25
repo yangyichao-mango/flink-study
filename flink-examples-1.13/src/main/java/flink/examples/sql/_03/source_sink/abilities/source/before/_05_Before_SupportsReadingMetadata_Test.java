@@ -5,7 +5,7 @@ import java.util.Arrays;
 import flink.examples.FlinkEnvUtils;
 import flink.examples.FlinkEnvUtils.FlinkEnv;
 
-public class _06_SupportsWatermarkPushDown_Test {
+public class _05_Before_SupportsReadingMetadata_Test {
 
     public static void main(String[] args) throws Exception {
 
@@ -17,10 +17,7 @@ public class _06_SupportsWatermarkPushDown_Test {
 
         String sql = "CREATE TABLE source_table (\n"
                 + "    user_id BIGINT,\n"
-                + "    flink_read_timestamp BIGINT METADATA VIRTUAL,\n"
-                + "    time_ltz AS TO_TIMESTAMP_LTZ(flink_read_timestamp, 3),\n"
-                + "    `name` STRING,\n"
-                + "    WATERMARK FOR time_ltz AS time_ltz - INTERVAL '5' SECOND\n"
+                + "    `name` STRING\n"
                 + ") WITH (\n"
                 + "  'connector' = 'before_supports_reading_metadata_user_defined',\n"
                 + "  'format' = 'json',\n"
@@ -29,7 +26,6 @@ public class _06_SupportsWatermarkPushDown_Test {
                 + "\n"
                 + "CREATE TABLE sink_table (\n"
                 + "    user_id BIGINT,\n"
-                + "    flink_read_timestamp BIGINT,\n"
                 + "    name STRING\n"
                 + ") WITH (\n"
                 + "  'connector' = 'print'\n"
@@ -37,9 +33,7 @@ public class _06_SupportsWatermarkPushDown_Test {
                 + "\n"
                 + "INSERT INTO sink_table\n"
                 + "SELECT\n"
-                + "    user_id,\n"
-                + "    flink_read_timestamp,\n"
-                + "    name\n"
+                + "    *\n"
                 + "FROM source_table";
 
         Arrays.stream(sql.split(";"))
