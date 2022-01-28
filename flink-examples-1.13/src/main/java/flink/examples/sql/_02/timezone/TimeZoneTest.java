@@ -4,14 +4,13 @@ import java.util.Arrays;
 
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.streaming.api.datastream.DataStream;
-import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.timestamps.BoundedOutOfOrdernessTimestampExtractor;
 import org.apache.flink.streaming.api.windowing.time.Time;
-import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.Table;
-import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 import org.apache.flink.types.Row;
 
+import flink.examples.FlinkEnvUtils;
+import flink.examples.FlinkEnvUtils.FlinkEnv;
 import flink.examples.sql._01.countdistincterror.udf.Mod_UDF;
 import flink.examples.sql._01.countdistincterror.udf.StatusMapper_UDF;
 
@@ -20,20 +19,13 @@ public class TimeZoneTest {
 
     public static void main(String[] args) throws Exception {
 
-        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        FlinkEnv flinkEnv = FlinkEnvUtils.getStreamTableEnv(args);
 
-        env.setParallelism(1);
-
-        EnvironmentSettings settings = EnvironmentSettings
-                .newInstance()
-                .useBlinkPlanner()
-                .inStreamingMode().build();
-
-        StreamTableEnvironment tEnv = StreamTableEnvironment.create(env, settings);
+        flinkEnv.streamTEnv().getConfig().getConfiguration().setString("table.local-time-zone", "GMT+08:00");
 
         DataStream<Tuple3<String, Long, Long>> tuple3DataStream =
-                env.fromCollection(Arrays.asList(
-                        Tuple3.of("2", 1L, 1627254000000L),
+                flinkEnv.env().fromCollection(Arrays.asList(
+                        Tuple3.of("2", 1L, 1627254000000L), // 北京时间：2021-07-26 07:00:00
                         Tuple3.of("2", 1L, 1627218000000L + 5000L),
                         Tuple3.of("2", 101L, 1627218000000L + 6000L),
                         Tuple3.of("2", 201L, 1627218000000L + 7000L),
@@ -51,11 +43,11 @@ public class TimeZoneTest {
                             }
                         });
 
-        tEnv.registerFunction("mod", new Mod_UDF());
+        flinkEnv.streamTEnv().registerFunction("mod", new Mod_UDF());
 
-        tEnv.registerFunction("status_mapper", new StatusMapper_UDF());
+        flinkEnv.streamTEnv().registerFunction("status_mapper", new StatusMapper_UDF());
 
-        tEnv.createTemporaryView("source_db.source_table", tuple3DataStream,
+        flinkEnv.streamTEnv().createTemporaryView("source_db.source_table", tuple3DataStream,
                 "status, id, timestamp, rowtime.rowtime");
 
         String sql = "SELECT\n"
@@ -66,10 +58,10 @@ public class TimeZoneTest {
                 + "GROUP BY\n"
                 + "  tumble(rowtime, INTERVAL '1' DAY)";
 
-        Table result = tEnv.sqlQuery(sql);
+        Table result = flinkEnv.streamTEnv().sqlQuery(sql);
 
-        tEnv.toAppendStream(result, Row.class).print();
+        flinkEnv.streamTEnv().toAppendStream(result, Row.class).print();
 
-        env.execute();
+        flinkEnv.env().execute();
     }
 }
