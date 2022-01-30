@@ -26,7 +26,7 @@ public class Abilities_TableSink implements DynamicTableSink
         , SupportsPartitioning
         , SupportsWritingMetadata {
 
-    private final DataType type;
+    private DataType type;
     private final String printIdentifier;
     private final boolean stdErr;
     private final @Nullable
@@ -77,12 +77,15 @@ public class Abilities_TableSink implements DynamicTableSink
     @Override
     public Map<String, DataType> listWritableMetadata() {
         return new HashMap<String, DataType>() {{
-            put("test_metadata", DataTypes.BIGINT());
+            put("flink_write_timestamp", DataTypes.BIGINT());
         }};
     }
 
     @Override
     public void applyWritableMetadata(List<String> metadataKeys, DataType consumedDataType) {
+
+        this.type = consumedDataType;
+
         log.info("metadataKeys:" + JacksonUtils.bean2Json(metadataKeys));
         log.info("consumedDataType:" + JacksonUtils.bean2Json(consumedDataType));
     }

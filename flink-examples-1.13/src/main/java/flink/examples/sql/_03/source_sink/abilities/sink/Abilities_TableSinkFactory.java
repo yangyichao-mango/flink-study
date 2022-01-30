@@ -13,7 +13,7 @@ import org.apache.flink.table.factories.FactoryUtil;
 
 public class Abilities_TableSinkFactory implements DynamicTableSinkFactory {
 
-    public static final String IDENTIFIER = "print";
+    public static final String IDENTIFIER = "abilities_print";
 
     public static final ConfigOption<String> PRINT_IDENTIFIER =
             key("print-identifier")

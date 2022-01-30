@@ -47,13 +47,14 @@ public class Abilities_TableSource implements ScanTableSource
     private final String className;
     private final DecodingFormat<DeserializationSchema<RowData>> decodingFormat;
     private final DataType sourceRowDataType;
-    private final DataType producedDataType;
+    private DataType producedDataType;
     private TableSchema physicalSchema;
     private TableSchema tableSchema;
     private long limit = -1;
     private WatermarkStrategy<RowData> watermarkStrategy;
     private boolean enableSourceWatermark;
     private List<ResolvedExpression> filters;
+    private List<String> metadataKeys;
 
     public Abilities_TableSource(
             String className,
@@ -62,6 +63,8 @@ public class Abilities_TableSource implements ScanTableSource
             DataType producedDataType,
             TableSchema physicalSchema,
             TableSchema tableSchema) {
+        DataTypes.BIGINT();
+
         this.className = className;
         this.decodingFormat = decodingFormat;
         this.sourceRowDataType = sourceRowDataType;
@@ -85,7 +88,7 @@ public class Abilities_TableSource implements ScanTableSource
 
         final DeserializationSchema<RowData> deserializer = decodingFormat.createRuntimeDecoder(
                 runtimeProviderContext,
-                getSchemaWithMetadata(this.tableSchema).toRowDataType());
+                this.producedDataType);
 
         Class<?> clazz = this.getClass().getClassLoader().loadClass(className);
 
@@ -157,7 +160,8 @@ public class Abilities_TableSource implements ScanTableSource
 
     @Override
     public void applyReadableMetadata(List<String> metadataKeys, DataType producedDataType) {
-        System.out.println(1);
+        this.metadataKeys = metadataKeys;
+        this.producedDataType = producedDataType;
     }
 
     @Override
