@@ -5,7 +5,7 @@ import java.util.Arrays;
 import flink.examples.FlinkEnvUtils;
 import flink.examples.FlinkEnvUtils.FlinkEnv;
 
-public class RangeIntervalTest {
+public class RangeIntervalRowtimeBoundedOutOfOrdernessTest {
 
     public static void main(String[] args) throws Exception {
 
@@ -18,7 +18,7 @@ public class RangeIntervalTest {
                 + "    product BIGINT,\n"
                 + "    amount BIGINT,\n"
                 + "    order_time as cast(CURRENT_TIMESTAMP as TIMESTAMP(3)),\n"
-                + "    WATERMARK FOR order_time AS order_time - INTERVAL '0.001' SECOND\n"
+                + "    WATERMARK FOR order_time AS order_time - INTERVAL '10' SECOND\n"
                 + ") WITH (\n"
                 + "  'connector' = 'datagen',\n"
                 + "  'rows-per-second' = '1',\n"

@@ -58,12 +58,6 @@ public class Temporal_Join_ProcesingTime_Test {
                 + "FROM show_log_table FULL JOIN click_log_table ON show_log_table.log_id = click_log_table.log_id\n"
                 + "AND show_log_table.proctime BETWEEN click_log_table.proctime - INTERVAL '4' HOUR AND click_log_table.proctime;";
 
-        /**
-         * join 算子：{@link org.apache.flink.streaming.api.operators.co.KeyedCoProcessOperator}
-         *                 -> {@link org.apache.flink.table.runtime.operators.join.interval.ProcTimeIntervalJoin}
-         *                       -> {@link org.apache.flink.table.runtime.operators.join.interval.IntervalJoinFunction}
-         */
-
         Arrays.stream(exampleSql.split(";"))
                 .forEach(flinkEnv.streamTEnv()::executeSql);
     }

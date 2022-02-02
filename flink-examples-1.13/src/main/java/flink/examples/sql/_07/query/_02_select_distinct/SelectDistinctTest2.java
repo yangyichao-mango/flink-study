@@ -40,23 +40,24 @@ public class SelectDistinctTest2 {
 
         StreamTableEnvironment tEnv = StreamTableEnvironment.create(env, settings);
 
-        String sourceSql = "CREATE TABLE source_table (\n"
-                + "    string_field STRING\n"
+        String sourceSql = "CREATE TABLE Orders (\n"
+                + "    id STRING\n"
                 + ") WITH (\n"
                 + "  'connector' = 'datagen',\n"
                 + "  'rows-per-second' = '10',\n"
-                + "  'fields.string_field.length' = '1'\n"
+                + "  'fields.id.length' = '1'\n"
                 + ")";
 
-        String sinkSql = "CREATE TABLE sink_table (\n"
-                + "    string_field STRING\n"
+        String sinkSql = "CREATE TABLE target_table (\n"
+                + "    id STRING\n"
                 + ") WITH (\n"
                 + "  'connector' = 'print'\n"
                 + ")";
 
-        String selectWhereSql = "insert into sink_table\n"
-                + "select distinct string_field\n"
-                + "from source_table";
+        String selectWhereSql = "INSERT into target_table\n"
+                + "SELECT \n"
+                + "    DISTINCT id \n"
+                + "FROM Orders";
 
         tEnv.getConfig().getConfiguration().setString("pipeline.name", "SELECT DISTINCT 案例");
 

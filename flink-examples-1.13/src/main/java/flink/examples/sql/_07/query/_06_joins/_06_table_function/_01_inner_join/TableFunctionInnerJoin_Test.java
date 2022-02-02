@@ -54,10 +54,15 @@ public class TableFunctionInnerJoin_Test {
     public static class UserProfileTableFunction extends TableFunction<Integer> {
 
         public void eval(long userId) {
+            // 自定义输出逻辑
             if (userId <= 5) {
-                collect(18);
+                // 一行转 1 行
+                collect(1);
             } else {
-                collect(23);
+                // 一行转 3 行
+                collect(1);
+                collect(2);
+                collect(3);
             }
         }
 
