@@ -95,6 +95,7 @@ public class FlinkEnvUtils {
 
         Configuration configuration = Configuration.fromMap(parameterTool.toMap());
 
+        configuration.setString("rest.flamegraph.enabled", "true");
 
         StreamExecutionEnvironment env =
                 StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(configuration);

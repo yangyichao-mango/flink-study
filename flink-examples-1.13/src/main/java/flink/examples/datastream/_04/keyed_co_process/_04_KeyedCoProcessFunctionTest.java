@@ -184,6 +184,7 @@ public class _04_KeyedCoProcessFunctionTest {
                     }
                 })
                 .uid("process")
+                .disableChaining()
                 .addSink(new SinkFunction<Test>() {
                     @Override
                     public void invoke(Test value, Context context) throws Exception {

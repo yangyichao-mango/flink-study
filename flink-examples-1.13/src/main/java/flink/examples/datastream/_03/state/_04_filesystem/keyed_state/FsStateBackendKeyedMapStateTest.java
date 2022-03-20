@@ -5,8 +5,6 @@ import java.util.List;
 
 import org.apache.flink.api.common.state.MapState;
 import org.apache.flink.api.common.state.MapStateDescriptor;
-import org.apache.flink.api.common.state.StateTtlConfig;
-import org.apache.flink.api.common.time.Time;
 import org.apache.flink.api.common.typeinfo.BasicTypeInfo;
 import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.api.java.typeutils.ListTypeInfo;
@@ -63,7 +61,7 @@ public class FsStateBackendKeyedMapStateTest {
                 .keyBy(new KeySelector<Item, Integer>() {
                     @Override
                     public Integer getKey(Item item) throws Exception {
-                        return item.color.ordinal();
+                        return 0;
                     }
                 })
                 .process(new KeyedProcessFunction<Integer, Item, String>() {
@@ -80,12 +78,12 @@ public class FsStateBackendKeyedMapStateTest {
                     public void open(Configuration parameters) throws Exception {
                         super.open(parameters);
 
-                        mapStateDesc.enableTimeToLive(StateTtlConfig
-                                .newBuilder(Time.milliseconds(1))
-                                .setUpdateType(StateTtlConfig.UpdateType.OnCreateAndWrite)
-                                .setStateVisibility(StateTtlConfig.StateVisibility.NeverReturnExpired)
-                                .cleanupInRocksdbCompactFilter(10)
-                                .build());
+//                        mapStateDesc.enableTimeToLive(StateTtlConfig
+//                                .newBuilder(Time.hours(1))
+//                                .setUpdateType(StateTtlConfig.UpdateType.OnCreateAndWrite)
+//                                .setStateVisibility(StateTtlConfig.StateVisibility.NeverReturnExpired)
+//                                .cleanupInRocksdbCompactFilter(10)
+//                                .build());
 
                     }
 

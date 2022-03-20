@@ -40,7 +40,7 @@ public class WatermarkTest {
                             ctx.collect(
                                     SourceModel
                                             .builder()
-                                            .page("")
+                                            .page("Shopping-Cart")
                                             .build()
                             );
                         }
@@ -96,6 +96,8 @@ public class WatermarkTest {
                     }
                 })
                 .print();
+
+        flinkEnv.env().execute();
     }
 
     @Data
