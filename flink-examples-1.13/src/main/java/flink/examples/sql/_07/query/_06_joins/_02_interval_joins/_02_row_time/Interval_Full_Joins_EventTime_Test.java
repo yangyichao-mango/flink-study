@@ -14,7 +14,8 @@ public class Interval_Full_Joins_EventTime_Test {
 
         flinkEnv.streamTEnv().getConfig().getConfiguration().setString("pipeline.name", "1.13.5 Interval Outer Join 事件时间案例");
 
-        String sql = "CREATE TABLE show_log_table (\n"
+        String sql =
+                "CREATE TABLE show_log_table (\n"
                 + "    log_id BIGINT,\n"
                 + "    show_params STRING,\n"
                 + "    row_time AS cast(CURRENT_TIMESTAMP as timestamp(3)),\n"

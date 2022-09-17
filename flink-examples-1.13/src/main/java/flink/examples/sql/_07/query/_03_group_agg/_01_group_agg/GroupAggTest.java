@@ -50,26 +50,45 @@ public class GroupAggTest {
                 + "  'fields.price.max' = '1000000'\n"
                 + ")";
 
+//        String sinkSql = "CREATE TABLE sink_table (\n"
+//                + "    order_id STRING,\n"
+//                + "    count_result BIGINT,\n"
+//                + "    sum_result BIGINT,\n"
+//                + "    avg_result DOUBLE,\n"
+//                + "    min_result BIGINT,\n"
+//                + "    max_result BIGINT\n"
+//                + ") WITH (\n"
+//                + "  'connector' = 'print'\n"
+//                + ")";
+
         String sinkSql = "CREATE TABLE sink_table (\n"
-                + "    order_id STRING,\n"
-                + "    count_result BIGINT,\n"
-                + "    sum_result BIGINT,\n"
-                + "    avg_result DOUBLE,\n"
-                + "    min_result BIGINT,\n"
-                + "    max_result BIGINT\n"
+                + "    count_result BIGINT\n"
+//                + "    sum_result BIGINT,\n"
+//                + "    avg_result DOUBLE,\n"
+//                + "    min_result BIGINT,\n"
+//                + "    max_result BIGINT\n"
                 + ") WITH (\n"
                 + "  'connector' = 'print'\n"
                 + ")";
 
+//        String selectWhereSql = "insert into sink_table\n"
+//                + "select order_id,\n"
+//                + "       count(*) as count_result,\n"
+//                + "       sum(price) as sum_result,\n"
+//                + "       avg(price) as avg_result,\n"
+//                + "       min(price) as min_result,\n"
+//                + "       max(price) as max_result\n"
+//                + "from source_table\n"
+//                + "group by order_id";
+
         String selectWhereSql = "insert into sink_table\n"
-                + "select order_id,\n"
-                + "       count(*) as count_result,\n"
-                + "       sum(price) as sum_result,\n"
-                + "       avg(price) as avg_result,\n"
-                + "       min(price) as min_result,\n"
-                + "       max(price) as max_result\n"
-                + "from source_table\n"
-                + "group by order_id";
+                + "select count(1) as count_result\n"
+                + "from (\n"
+                + "  select order_id,\n"
+                + "         count(*) as count_result\n"
+                + "  from source_table\n"
+                + "  group by order_id\n"
+                + ")";
 
         tEnv.getConfig().getConfiguration().setString("pipeline.name", "GROUP AGG 案例");
 

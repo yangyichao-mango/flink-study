@@ -10,7 +10,7 @@ public class TumbleWindow2GroupAggTest {
 
     public static void main(String[] args) throws Exception {
 
-        FlinkEnv flinkEnv = FlinkEnvUtils.getStreamTableEnv(new String[] {"--enable.hive.module.v2", "false"});
+        FlinkEnv flinkEnv = FlinkEnvUtils.getStreamTableEnv(new String[] {"--enable.hive.module.v2", "false", "--table.optimizer.agg-phase-strategy", "TWO_PHASE"});
 
         String sql = "-- 数据源表\n"
                 + "CREATE TABLE source_table (\n"

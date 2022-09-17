@@ -105,7 +105,6 @@ public class FlinkEnvUtils {
         env.setParallelism(1);
 
         if ("rocksdb".equals(stateBackend)) {
-
             setRocksDBStateBackend(env);
         } else if ("filesystem".equals(stateBackend)) {
             setFsStateBackend(env);
@@ -125,6 +124,8 @@ public class FlinkEnvUtils {
                 .build();
 
         StreamTableEnvironment tEnv = StreamTableEnvironment.create(env, settings);
+
+        tEnv.getConfig().addConfiguration(configuration);
 
         FlinkEnv flinkEnv = FlinkEnv
                 .builder()

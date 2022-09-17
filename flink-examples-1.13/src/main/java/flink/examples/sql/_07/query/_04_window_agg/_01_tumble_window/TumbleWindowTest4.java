@@ -4,7 +4,7 @@ import flink.examples.FlinkEnvUtils;
 import flink.examples.FlinkEnvUtils.FlinkEnv;
 
 
-public class TumbleWindowTest {
+public class TumbleWindowTest4 {
 
     public static void main(String[] args) throws Exception {
 
@@ -45,27 +45,24 @@ public class TumbleWindowTest {
                 + "\t   max(bucket_max_price) as max_price,\n"
                 + "\t   min(bucket_min_price) as min_price,\n"
                 + "\t   sum(bucket_uv) as uv,\n"
-                + "\t   max(window_start) as window_start\n"
+                + "\t   UNIX_TIMESTAMP(CAST(TUMBLE_START(rowtime, INTERVAL '5' MINUTE) AS STRING)) as rowtime\n"
                 + "from (\n"
-                + "\t SELECT dim,\n"
-                + "\t \t    UNIX_TIMESTAMP(CAST(window_start AS STRING)) * 1000 as window_start, \n"
-                + "\t        window_end, \n"
-                + "\t        count(*) as bucket_pv,\n"
-                + "\t        sum(price) as bucket_sum_price,\n"
-                + "\t        max(price) as bucket_max_price,\n"
-                + "\t        min(price) as bucket_min_price,\n"
-                + "\t        count(distinct user_id) as bucket_uv\n"
-                + "\t FROM TABLE(TUMBLE(\n"
-                + "\t \t\t\tTABLE source_table\n"
-                + "\t \t\t\t, DESCRIPTOR(row_time)\n"
-                + "\t \t\t\t, INTERVAL '60' SECOND))\n"
-                + "\t GROUP BY window_start, \n"
-                + "\t  \t\t  window_end,\n"
-                + "\t\t\t  dim,\n"
-                + "\t\t\t  mod(user_id, 1024)\n"
+                + "\tSELECT \n"
+                + "\t\tdim,\n"
+                + "\t\tTUMBLE_ROWTIME(row_time, INTERVAL '5' MINUTE) as rowtime,\n"
+                + "\t    count(*) as bucket_pv,\n"
+                + "\t    sum(price) as bucket_sum_price,\n"
+                + "\t    max(price) as bucket_max_price,\n"
+                + "\t    min(price) as bucket_min_price,\n"
+                + "\t    count(distinct user_id) as bucket_uv\n"
+                + "\tFROM source_table\n"
+                + "\tGROUP BY \n"
+                + "\t\tTUMBLE(row_time, INTERVAL '5' MINUTE),\n"
+                + "\t\tdim,\n"
+                + "\t\tmod(user_id, 1024)\n"
                 + ")\n"
                 + "group by dim,\n"
-                + "\t\t window_start";
+                + "  \t\tTUMBLE(rowtime, INTERVAL '5' MINUTE)";
 
         flinkEnv.streamTEnv().getConfig().getConfiguration().setString("pipeline.name", "1.13.5 WINDOW TVF TUMBLE WINDOW 案例");
 
